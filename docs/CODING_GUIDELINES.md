@@ -20,13 +20,16 @@
 - Use `unknown` instead of `any` when the type is genuinely unknown, then narrow it
 - Never use non-null assertion (`!`) — handle nullability explicitly
 - Use `satisfies` for validating literal objects against a type without losing inference
+- **Always use arrow functions** — never use the `function` keyword for TypeScript functions
 
 ```ts
 // ❌ Bad
 const getMeal = (id: any) => { ... }
+function getMeals(householdId: string): Promise<Meal[]> { ... }
 
 // ✅ Good
 const getMeal = (id: string): Promise<Meal> => { ... }
+const getMeals = (householdId: string): Promise<Meal[]> => { ... }
 ```
 
 ---
