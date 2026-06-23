@@ -1,1 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 @import 'tailwindcss';
+
+:root {
+  /* Brand */
+  --color-accent: #534ab7;
+  --color-accent-hover: #3c3489;
+  --color-accent-subtle: #eeedfe;
+  --color-accent-text: #3c3489;
+
+  /* Backgrounds */
+  --color-bg-page: #e8e6de;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f1efe8;
+  --color-bg-tertiary: #e8e6de;
+
+  /* Text */
+  --color-text-primary: #111110;
+  --color-text-secondary: #5f5e5a;
+  --color-text-tertiary: #b4b2a9;
+
+  /* Borders */
+  --color-border-default: #d3d1c7;
+  --color-border-strong: #b4b2a9;
+  --color-border-accent: #534ab7;
+
+  /* Categories */
+  --color-cat-veg-bg: #eaf3de;
+  --color-cat-veg-text: #27500a;
+  --color-cat-protein-bg: #faece7;
+  --color-cat-protein-text: #712b13;
+  --color-cat-pantry-bg: #faeeda;
+  --color-cat-pantry-text: #633806;
+  --color-cat-fruit-bg: #e1f5ee;
+  --color-cat-fruit-text: #085041;
+  --color-cat-spice-bg: #e6f1fb;
+  --color-cat-spice-text: #0c447c;
+  --color-cat-clean-bg: #fbeaf0;
+  --color-cat-clean-text: #72243e;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+}
+
+[data-theme='dark'] {
+  --color-accent: #7f77dd;
+  --color-accent-hover: #afa9ec;
+  --color-accent-subtle: #26215c;
+  --color-accent-text: #cecbf6;
+
+  --color-bg-page: #222220;
+  --color-bg-primary: #1a1a18;
+  --color-bg-secondary: #2c2c2a;
+  --color-bg-tertiary: #222220;
+
+  --color-text-primary: #f1efe8;
+  --color-text-secondary: #888780;
+  --color-text-tertiary: #5f5e5a;
+
+  --color-border-default: #444441;
+  --color-border-strong: #5f5e5a;
+  --color-border-accent: #7f77dd;
+
+  --color-cat-veg-bg: #27500a;
+  --color-cat-veg-text: #c0dd97;
+  --color-cat-protein-bg: #712b13;
+  --color-cat-protein-text: #f5c4b3;
+  --color-cat-pantry-bg: #633806;
+  --color-cat-pantry-text: #fac775;
+  --color-cat-fruit-bg: #085041;
+  --color-cat-fruit-text: #9fe1cb;
+  --color-cat-spice-bg: #0c447c;
+  --color-cat-spice-text: #b5d4f4;
+  --color-cat-clean-bg: #72243e;
+  --color-cat-clean-text: #f4c0d1;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+}
