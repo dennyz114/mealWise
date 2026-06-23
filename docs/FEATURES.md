@@ -11,6 +11,8 @@ This document describes the features of the application. It is used as reference
 - Session persists across browser refreshes
 - Sign out option available
 
+> **Requirements**: [MW-001 — Login with Google](../features/MW-001-login/MW-001-login.md)
+
 ---
 
 ## 2. Household Management
