@@ -3,7 +3,8 @@
   "instructions": [
     "docs/FEATURES.md",
     "docs/CODING_GUIDELINES.md",
-    "docs/DATABASE.md"
+    "docs/DATABASE.md",
+    "docs/STYLING.md"
   ],
   "agent": {
     "ProductManager": {
