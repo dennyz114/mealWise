@@ -51,11 +51,5 @@ The login feature allows users to authenticate using their Google account via Su
 ### Footer
 - Copyright text: "© 2026 MealWise"
 
-### Dark Mode
-- Auto-detect user's system preference on first visit
-- Provide a manual toggle button in the bottom right corner to switch between light and dark modes
-- User preference should persist across sessions
-- Both light and dark themes must be fully supported per the mockups
-
 ### Terms & Privacy
 - "Terms of Service" and "Privacy Policy" links are placeholders for now (no actual pages required)

@@ -15,7 +15,18 @@ This document describes the features of the application. It is used as reference
 
 ---
 
-## 2. Household Management
+## 2. Dark Mode
+
+- Auto-detect system color preference on first visit
+- Manual toggle in bottom right corner to switch themes
+- Preference persists across sessions
+- Both light and dark themes fully supported
+
+> **Requirements**: [MW-002 — Dark Mode](../features/MW-002-dark-mode/MW-002-dark-mode.md)
+
+---
+
+## 3. Household Management
 
 A household is the core unit — all meals, menus, and shopping lists belong to a household.
 
