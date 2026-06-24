@@ -93,7 +93,22 @@ Generated from the ingredients of all meals in a weekly menu.
 
 ---
 
-## 7. UI / UX Considerations
+## 7. Button Component
+
+A reusable Button component extending shadcn/ui with custom variants and states.
+
+- Primary variant (with icon on left)
+- Secondary variant (with icon on left)
+- Icon-only variant (with tooltip for accessibility)
+- Loading state (spinner replaces icon, button disabled)
+- Disabled state (reduced opacity)
+- Hover state (color transition only)
+
+> **Requirements**: [MW-003 — Button Component](../features/MW-003-button-component/MW-003-button-component.md)
+
+---
+
+## 8. UI / UX Considerations
 
 - **Mobile-first**: all screens must be fully functional and comfortable on a phone
 - Desktop is supported but secondary
