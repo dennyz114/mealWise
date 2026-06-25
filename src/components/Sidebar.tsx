@@ -1,10 +1,18 @@
 import { Link } from '@tanstack/react-router'
 import { NAV_ITEMS, SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '@/lib/constants'
 import { useSidebar } from '@/hooks/useSidebar'
+import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/utils'
+
+const navTranslationKeys: Record<string, string> = {
+  '/meals': 'nav.meals',
+  '/planner': 'nav.planner',
+  '/shopping': 'nav.shopping',
+}
 
 export const Sidebar = () => {
   const { isExpanded, toggle } = useSidebar()
+  const { t } = useTranslation()
   const width = isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
 
   return (
@@ -36,7 +44,7 @@ export const Sidebar = () => {
             )}
           >
             <i className={`ti ${item.icon} text-lg`} />
-            {isExpanded && <span>{item.label}</span>}
+            {isExpanded && <span>{t(navTranslationKeys[item.path] ?? '')}</span>}
           </Link>
         ))}
       </nav>

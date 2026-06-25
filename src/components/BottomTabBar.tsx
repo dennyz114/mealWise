@@ -1,8 +1,17 @@
 import { Link } from '@tanstack/react-router'
 import { NAV_ITEMS } from '@/lib/constants'
+import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/utils'
 
+const navTranslationKeys: Record<string, string> = {
+  '/meals': 'nav.meals',
+  '/planner': 'nav.planner',
+  '/shopping': 'nav.shopping',
+}
+
 export const BottomTabBar = () => {
+  const { t } = useTranslation()
+
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-[var(--color-border-default)] bg-[var(--color-bg-primary)] pb-[env(safe-area-inset-bottom)] md:hidden">
       {NAV_ITEMS.map((item) => (
@@ -20,7 +29,7 @@ export const BottomTabBar = () => {
           )}
         >
           <i className={`ti ${item.icon} text-xl`} />
-          <span>{item.label}</span>
+          <span>{t(navTranslationKeys[item.path] ?? '')}</span>
         </Link>
       ))}
     </nav>

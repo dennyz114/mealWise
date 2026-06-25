@@ -1,14 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export const Route = createFileRoute('/_authenticated/meals')({
   component: MealsPage,
 })
 
 function MealsPage() {
+  const { t } = useTranslation()
+
   return (
     <div className="p-4">
-      <h1 className="text-lg font-medium text-[var(--color-text-primary)]">Meals</h1>
-      <p className="mt-2 text-sm text-[var(--color-text-secondary)]">Coming soon.</p>
+      <h1 className="text-lg font-medium text-[var(--color-text-primary)]">{t('nav.meals')}</h1>
+      <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{t('common.comingSoon')}</p>
     </div>
   )
 }

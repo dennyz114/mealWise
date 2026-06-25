@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "meals": "Comidas",
+    "planner": "Planificador",
+    "shopping": "Compras"
+  },
+  "profile": {
+    "myHousehold": "Mi hogar",
+    "darkMode": "Modo oscuro",
+    "language": "Idioma",
+    "settings": "Configuración",
+    "signOut": "Cerrar sesión"
+  },
+  "common": {
+    "copied": "¡Copiado!",
+    "comingSoon": "Próximamente."
+  }
+}

@@ -4,6 +4,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { Avatar } from '@/components/Avatar'
 import { useTheme } from '@/lib/theme'
 import { signOut } from '@/lib/auth'
+import { useTranslation } from '@/hooks/useTranslation'
+import { LANGUAGES, type Locale } from '@/lib/i18n'
 import type { AuthUser } from '@/types/auth'
 
 type ProfileDropdownProps = {
@@ -12,9 +14,11 @@ type ProfileDropdownProps = {
 
 export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
   const { theme, setTheme } = useTheme()
+  const { locale, setLocale, t } = useTranslation()
   const navigate = useNavigate()
   const [copied, setCopied] = useState(false)
   const [open, setOpen] = useState(false)
+  const [langExpanded, setLangExpanded] = useState(false)
 
   const isDark = theme === 'dark'
 
@@ -32,6 +36,11 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
     await signOut()
     navigate({ to: '/login' })
   }, [navigate])
+
+  const handleLanguageSelect = useCallback((code: Locale) => {
+    setLocale(code)
+    setLangExpanded(false)
+  }, [setLocale])
 
   return (
     <DropdownMenu.Root open={open} onOpenChange={setOpen}>
@@ -77,7 +86,7 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
             }}
           >
             <i className="ti ti-home text-base" />
-            <span className="flex-1">My household</span>
+            <span className="flex-1">{t('profile.myHousehold')}</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-bg-secondary)] px-2 py-0.5 text-xs text-[var(--color-text-secondary)]">
               TODO
               <button
@@ -100,18 +109,56 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
             }}
           >
             <i className={`ti ${isDark ? 'ti-sun' : 'ti-moon'} text-base`} />
-            <span className="flex-1">Dark mode</span>
+            <span className="flex-1">{t('profile.darkMode')}</span>
             <span className="text-xs text-[var(--color-text-secondary)]">
               {isDark ? 'On' : 'Off'}
             </span>
           </DropdownMenu.Item>
 
           <DropdownMenu.Item
+            className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-sm text-[var(--color-accent)] outline-none hover:bg-[var(--color-accent-subtle)]"
+            onSelect={(e) => {
+              e.preventDefault()
+              setLangExpanded(!langExpanded)
+            }}
+          >
+            <i className="ti ti-language text-base" />
+            <span className="flex-1">{t('profile.language')}</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-accent-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--color-accent)]">
+              {LANGUAGES.find(l => l.code === locale)?.code.toUpperCase()}
+            </span>
+            <i className={`ti ti-chevron-${langExpanded ? 'up' : 'down'} text-xs text-[var(--color-accent)]`} />
+          </DropdownMenu.Item>
+
+          {langExpanded && (
+            <div className="ml-4 border-l border-[var(--color-border-default)] pl-2">
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleLanguageSelect(lang.code)}
+                  className="flex w-full items-center gap-2 rounded-[var(--radius-md)] px-2 py-1.5 text-sm text-[var(--color-text-primary)] outline-none hover:bg-[var(--color-bg-secondary)]"
+                >
+                  <span className="text-base">{lang.flag}</span>
+                  <span className="flex-1 text-left">
+                    <span className="font-medium">{lang.nativeName}</span>
+                    <span className="ml-1 text-xs text-[var(--color-text-secondary)]">
+                      {lang.name}
+                    </span>
+                  </span>
+                  {locale === lang.code && (
+                    <i className="ti ti-check text-sm text-[var(--color-accent)]" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <DropdownMenu.Item
             className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none hover:bg-[var(--color-bg-secondary)]"
             onSelect={(e) => e.preventDefault()}
           >
             <i className="ti ti-settings text-base" />
-            <span>Settings</span>
+            <span>{t('profile.settings')}</span>
           </DropdownMenu.Item>
 
           <DropdownMenu.Separator className="my-1 h-px bg-[var(--color-border-default)]" />
@@ -124,7 +171,7 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
             }}
           >
             <i className="ti ti-logout text-base" />
-            <span>Sign out</span>
+            <span>{t('profile.signOut')}</span>
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
