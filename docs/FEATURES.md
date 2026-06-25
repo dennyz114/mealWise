@@ -26,7 +26,22 @@ This document describes the features of the application. It is used as reference
 
 ---
 
-## 3. Application Layout
+## 3. Internationalization (i18n)
+
+Multi-language support for the application interface.
+
+- UI labels translated: English, Spanish, French
+- Language picker in profile dropdown (expands inline)
+- Spanish is the default for new users
+- Preference persists across sessions
+- User-entered content is never translated
+- System designed for easy addition of new languages
+
+> **Requirements**: [MW-005 — Internationalization (i18n)](../features/MW-005-i18n/MW-005-i18n.md)
+
+---
+
+## 4. Application Layout
 
 The global application shell that provides consistent navigation across all screens.
 
@@ -42,7 +57,7 @@ The global application shell that provides consistent navigation across all scre
 
 ---
 
-## 4. Household Management
+## 5. Household Management
 
 A household is the core unit — all meals, menus, and shopping lists belong to a household.
 
@@ -55,7 +70,7 @@ A household is the core unit — all meals, menus, and shopping lists belong to 
 
 ---
 
-## 5. Meal Library
+## 6. Meal Library
 
 A shared library of meals within a household.
 
@@ -66,7 +81,7 @@ A shared library of meals within a household.
 
 ---
 
-## 6. Ingredient Management
+## 7. Ingredient Management
 
 Ingredients belong to a meal and have: `name`, `quantity`, `unit`, and `category`.
 
@@ -81,7 +96,7 @@ Ingredients belong to a meal and have: `name`, `quantity`, `unit`, and `category
 
 ---
 
-## 7. Weekly Menu Planner
+## 8. Weekly Menu Planner
 
 Plan meals for any week, not just the current one.
 
@@ -93,7 +108,7 @@ Plan meals for any week, not just the current one.
 
 ---
 
-## 8. Shopping List
+## 9. Shopping List
 
 Generated from the ingredients of all meals in a weekly menu.
 
@@ -109,7 +124,7 @@ Generated from the ingredients of all meals in a weekly menu.
 
 ---
 
-## 9. Button Component
+## 10. Button Component
 
 A reusable Button component extending shadcn/ui with custom variants and states.
 
@@ -124,7 +139,7 @@ A reusable Button component extending shadcn/ui with custom variants and states.
 
 ---
 
-## 10. UI / UX Considerations
+## 11. UI / UX Considerations
 
 - **Mobile-first**: all screens must be fully functional and comfortable on a phone
 - Desktop is supported but secondary
