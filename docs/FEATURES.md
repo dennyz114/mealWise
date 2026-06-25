@@ -18,7 +18,7 @@ This document describes the features of the application. It is used as reference
 ## 2. Dark Mode
 
 - Auto-detect system color preference on first visit
-- Manual toggle in bottom right corner to switch themes
+- Manual toggle in profile dropdown to switch themes
 - Preference persists across sessions
 - Both light and dark themes fully supported
 
@@ -26,7 +26,23 @@ This document describes the features of the application. It is used as reference
 
 ---
 
-## 3. Household Management
+## 3. Application Layout
+
+The global application shell that provides consistent navigation across all screens.
+
+- Header with app logo and user avatar (always visible)
+- Mobile: bottom tab bar with Meals, Planner, Shopping
+- Desktop: collapsible sidebar with Meals, Planner, Shopping
+- Profile dropdown menu triggered from avatar (user info, household code, dark mode toggle, settings, sign out)
+- Household join code with copy-to-clipboard
+- Global breakpoint at 640px for responsive layout switching
+- Sidebar collapsed/expanded preference persists across sessions
+
+> **Requirements**: [MW-004 — Application Layout](../features/MW-004-app-layout/MW-004-app-layout.md)
+
+---
+
+## 4. Household Management
 
 A household is the core unit — all meals, menus, and shopping lists belong to a household.
 
@@ -39,7 +55,7 @@ A household is the core unit — all meals, menus, and shopping lists belong to 
 
 ---
 
-## 3. Meal Library
+## 5. Meal Library
 
 A shared library of meals within a household.
 
@@ -50,7 +66,7 @@ A shared library of meals within a household.
 
 ---
 
-## 4. Ingredient Management
+## 6. Ingredient Management
 
 Ingredients belong to a meal and have: `name`, `quantity`, `unit`, and `category`.
 
@@ -65,7 +81,7 @@ Ingredients belong to a meal and have: `name`, `quantity`, `unit`, and `category
 
 ---
 
-## 5. Weekly Menu Planner
+## 7. Weekly Menu Planner
 
 Plan meals for any week, not just the current one.
 
@@ -77,7 +93,7 @@ Plan meals for any week, not just the current one.
 
 ---
 
-## 6. Shopping List
+## 8. Shopping List
 
 Generated from the ingredients of all meals in a weekly menu.
 
@@ -93,7 +109,7 @@ Generated from the ingredients of all meals in a weekly menu.
 
 ---
 
-## 7. Button Component
+## 9. Button Component
 
 A reusable Button component extending shadcn/ui with custom variants and states.
 
@@ -108,7 +124,7 @@ A reusable Button component extending shadcn/ui with custom variants and states.
 
 ---
 
-## 8. UI / UX Considerations
+## 10. UI / UX Considerations
 
 - **Mobile-first**: all screens must be fully functional and comfortable on a phone
 - Desktop is supported but secondary
