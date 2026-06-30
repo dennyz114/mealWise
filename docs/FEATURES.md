@@ -61,12 +61,17 @@ The global application shell that provides consistent navigation across all scre
 
 A household is the core unit — all meals, menus, and shopping lists belong to a household.
 
+- After login, if no household exists, user must create or join one before accessing the app
+- "Set up your household" screen with create/join options replaces main content
 - User can create a household (becomes the owner)
 - Owner can share a `join_code` to invite other members
 - Any authenticated user can join a household using a valid `join_code`
-- A user can only belong to one household at a time
-- Owner can remove members
-- Owner can delete the household
+- Join code format: `XXX-XXX` (6 alphanumeric characters with hyphen)
+- Profile dropdown shows "Setup needed" badge when no household exists
+- After setup, profile dropdown shows join code (click to copy)
+- Redirects to meals placeholder after successful create/join
+
+> **Requirements**: [MW-006 — Household Management](../features/MW-006-household-management/MW-006-household-management.md)
 
 ---
 
