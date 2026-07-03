@@ -14,5 +14,29 @@
   "common": {
     "copied": "¡Copiado!",
     "comingSoon": "Próximamente."
+  },
+  "household": {
+    "setupTitle": "Configura tu hogar",
+    "setupDescription": "Crea un nuevo hogar o únete a uno existente para empezar.",
+    "createTitle": "Crear un hogar",
+    "createSubtitle": "Dale un nombre a tu hogar. Recibirás un código para compartir con otros.",
+    "createNameLabel": "Nombre del hogar",
+    "createNamePlaceholder": "Ej: Mi Familia",
+    "createCodeHelper": "Comparte este código con quien quieras invitar. Pueden unirse desde su perfil.",
+    "createButton": "Crear hogar",
+    "joinTitle": "Unirse a un hogar",
+    "joinSubtitle": "Pídele al dueño del hogar su código de 7 caracteres e ingrésalo abajo.",
+    "joinInputLabel": "Código de acceso",
+    "joinInputPlaceholder": "Ej: XK4-92T",
+    "joinButton": "Unirse al hogar",
+    "cancel": "Cancelar",
+    "copyCode": "Copiar código",
+    "setupNeeded": "Configuración pendiente",
+    "myHousehold": "Mi hogar",
+    "codeCopied": "¡Código copiado!",
+    "errorInvalidCode": "Código de acceso inválido. Verifica e intenta de nuevo.",
+    "errorAlreadyMember": "Ya eres miembro de este hogar.",
+    "errorNameRequired": "El nombre del hogar es obligatorio.",
+    "errorGeneric": "Algo salió mal. Intenta de nuevo."
   }
 }

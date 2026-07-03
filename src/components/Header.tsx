@@ -2,8 +2,13 @@ import { Link } from '@tanstack/react-router'
 import { ProfileDropdown } from '@/components/ProfileDropdown'
 import { useAuth } from '@/hooks/useAuth'
 import type { AuthUser } from '@/types/auth'
+import type { Household } from '@/types/household'
 
-export const Header = () => {
+type HeaderProps = {
+  household?: Household | null
+}
+
+export const Header = ({ household }: HeaderProps) => {
   const { user } = useAuth()
 
   return (
@@ -13,7 +18,7 @@ export const Header = () => {
         <span className="text-base font-medium">mealWise</span>
       </Link>
 
-      {user && <ProfileDropdown user={user as AuthUser} />}
+      {user && <ProfileDropdown user={user as AuthUser} household={household ?? null} />}
     </header>
   )
 }

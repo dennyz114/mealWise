@@ -3,6 +3,11 @@ import { NAV_ITEMS, SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '@/li
 import { useSidebar } from '@/hooks/useSidebar'
 import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/utils'
+import type { Household } from '@/types/household'
+
+type SidebarProps = {
+  household?: Household | null
+}
 
 const navTranslationKeys: Record<string, string> = {
   '/meals': 'nav.meals',
@@ -10,10 +15,11 @@ const navTranslationKeys: Record<string, string> = {
   '/shopping': 'nav.shopping',
 }
 
-export const Sidebar = () => {
+export const Sidebar = ({ household }: SidebarProps) => {
   const { isExpanded, toggle } = useSidebar()
   const { t } = useTranslation()
   const width = isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
+  const hasHousehold = !!household
 
   return (
     <aside
@@ -41,6 +47,7 @@ export const Sidebar = () => {
             }}
             className={cn(
               'flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm transition-colors',
+              !hasHousehold && 'pointer-events-none opacity-40',
             )}
           >
             <i className={`ti ${item.icon} text-lg`} />

@@ -14,5 +14,29 @@
   "common": {
     "copied": "Copied!",
     "comingSoon": "Coming soon."
+  },
+  "household": {
+    "setupTitle": "Set up your household",
+    "setupDescription": "Create a new household or join an existing one to get started.",
+    "createTitle": "Create a household",
+    "createSubtitle": "Give your household a name. You'll get a code to share with others.",
+    "createNameLabel": "Household name",
+    "createNamePlaceholder": "e.g. My Family",
+    "createCodeHelper": "Share this code with anyone you want to invite. They can join from their profile.",
+    "createButton": "Create household",
+    "joinTitle": "Join a household",
+    "joinSubtitle": "Ask the household owner for their 7-character code and enter it below.",
+    "joinInputLabel": "Join code",
+    "joinInputPlaceholder": "e.g. XK4-92T",
+    "joinButton": "Join household",
+    "cancel": "Cancel",
+    "copyCode": "Copy code",
+    "setupNeeded": "Setup needed",
+    "myHousehold": "My household",
+    "codeCopied": "Code copied!",
+    "errorInvalidCode": "Invalid join code. Please check and try again.",
+    "errorAlreadyMember": "You're already a member of this household.",
+    "errorNameRequired": "Household name is required.",
+    "errorGeneric": "Something went wrong. Please try again."
   }
 }
