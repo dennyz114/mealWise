@@ -14,5 +14,29 @@
   "common": {
     "copied": "Copié !",
     "comingSoon": "Bientôt disponible."
+  },
+  "household": {
+    "setupTitle": "Configurez votre foyer",
+    "setupDescription": "Créez un nouveau foyer ou rejoignez-en un existant pour commencer.",
+    "createTitle": "Créer un foyer",
+    "createSubtitle": "Donnez un nom à votre foyer. Vous recevrez un code à partager.",
+    "createNameLabel": "Nom du foyer",
+    "createNamePlaceholder": "Ex: Ma Famille",
+    "createCodeHelper": "Partagez ce code avec les personnes que vous souhaitez inviter. Elles peuvent rejoindre depuis leur profil.",
+    "createButton": "Créer le foyer",
+    "joinTitle": "Rejoindre un foyer",
+    "joinSubtitle": "Demandez au propriétaire du foyer son code à 7 caractères et saisissez-le ci-dessous.",
+    "joinInputLabel": "Code d'accès",
+    "joinInputPlaceholder": "Ex: XK4-92T",
+    "joinButton": "Rejoindre le foyer",
+    "cancel": "Annuler",
+    "copyCode": "Copier le code",
+    "setupNeeded": "Configuration requise",
+    "myHousehold": "Mon foyer",
+    "codeCopied": "Code copié !",
+    "errorInvalidCode": "Code d'accès invalide. Vérifiez et réessayez.",
+    "errorAlreadyMember": "Vous êtes déjà membre de ce foyer.",
+    "errorNameRequired": "Le nom du foyer est requis.",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
   }
 }
