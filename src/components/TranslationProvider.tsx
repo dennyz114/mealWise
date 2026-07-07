@@ -7,7 +7,7 @@ import fr from '@/locales/fr.json'
 type TranslationContextValue = {
   locale: Locale
   setLocale: (locale: Locale) => void
-  t: (key: string) => string
+  t: (key: string, params?: Record<string, string | number>) => string
 }
 
 const translations = { en, es, fr } as const
@@ -50,20 +50,25 @@ export const TranslationProvider = ({ children }: TranslationProviderProps) => {
     setLocaleState(newLocale)
   }, [])
 
-  const t = useCallback((key: string): string => {
+  const t = useCallback((key: string, params?: Record<string, string | number>): string => {
     const currentTranslations = translations[locale]
-    const value = getNestedValue(currentTranslations, key)
+    let value = getNestedValue(currentTranslations, key)
 
-    if (value !== undefined) {
-      return value
+    if (value === undefined) {
+      value = getNestedValue(translations.en, key)
     }
 
-    const fallbackValue = getNestedValue(translations.en, key)
-    if (fallbackValue !== undefined) {
-      return fallbackValue
+    if (value === undefined) {
+      return key
     }
 
-    return key
+    if (params) {
+      for (const [paramKey, paramValue] of Object.entries(params)) {
+        value = value.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue))
+      }
+    }
+
+    return value
   }, [locale])
 
   return (

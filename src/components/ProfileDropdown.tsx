@@ -7,12 +7,14 @@ import { signOut } from '@/lib/auth'
 import { useTranslation } from '@/hooks/useTranslation'
 import { LANGUAGES, type Locale } from '@/lib/i18n'
 import type { AuthUser } from '@/types/auth'
+import type { Household } from '@/types/household'
 
 type ProfileDropdownProps = {
   user: AuthUser
+  household?: Household | null
 }
 
-export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
+export const ProfileDropdown = ({ user, household }: ProfileDropdownProps) => {
   const { theme, setTheme } = useTheme()
   const { locale, setLocale, t } = useTranslation()
   const navigate = useNavigate()
@@ -21,16 +23,18 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
   const [langExpanded, setLangExpanded] = useState(false)
 
   const isDark = theme === 'dark'
+  const hasHousehold = !!household
 
   const handleCopyCode = useCallback(async () => {
+    if (!household?.joinCode) return
     try {
-      await navigator.clipboard.writeText('TODO-HOUSEHOLD-CODE')
+      await navigator.clipboard.writeText(household.joinCode)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
       // clipboard not available
     }
-  }, [])
+  }, [household])
 
   const handleSignOut = useCallback(async () => {
     await signOut()
@@ -79,26 +83,37 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
           <DropdownMenu.Separator className="my-1 h-px bg-[var(--color-border-default)]" />
 
           <DropdownMenu.Item
-            className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none hover:bg-[var(--color-bg-secondary)]"
+            className={`flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none ${
+              hasHousehold ? 'hover:bg-[var(--color-bg-secondary)]' : ''
+            }`}
             onSelect={(e) => {
               e.preventDefault()
-              handleCopyCode()
+              if (hasHousehold) handleCopyCode()
             }}
+            disabled={!hasHousehold}
           >
-            <i className="ti ti-home text-base" />
-            <span className="flex-1">{t('profile.myHousehold')}</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-bg-secondary)] px-2 py-0.5 text-xs text-[var(--color-text-secondary)]">
-              TODO
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleCopyCode()
-                }}
-                className="ml-0.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-              >
-                <i className={`ti ${copied ? 'ti-check text-green-500' : 'ti-copy'}`} />
-              </button>
+            <i className={`ti ti-home text-base ${!hasHousehold ? 'opacity-40' : ''}`} />
+            <span className={`flex-1 ${!hasHousehold ? 'opacity-40' : ''}`}>
+              {t('household.myHousehold')}
             </span>
+            {hasHousehold ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-bg-secondary)] px-2 py-0.5 text-xs text-[var(--color-text-secondary)]">
+                {household.joinCode}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleCopyCode()
+                  }}
+                  className="ml-0.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                >
+                  <i className={`ti ${copied ? 'ti-check text-green-500' : 'ti-copy'}`} />
+                </button>
+              </span>
+            ) : (
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                {t('household.setupNeeded')}
+              </span>
+            )}
           </DropdownMenu.Item>
 
           <DropdownMenu.Item
@@ -155,7 +170,11 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
 
           <DropdownMenu.Item
             className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none hover:bg-[var(--color-bg-secondary)]"
-            onSelect={(e) => e.preventDefault()}
+            onSelect={(e) => {
+              e.preventDefault()
+              navigate({ to: '/settings' })
+              setOpen(false)
+            }}
           >
             <i className="ti ti-settings text-base" />
             <span>{t('profile.settings')}</span>
