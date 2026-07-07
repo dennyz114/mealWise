@@ -12,6 +12,12 @@ Lets users build and maintain their recipe library — browse all meals, view a 
 - Desktop: two-column card grid with trash icon visible on each card footer
 - "+ New meal" button (FAB on mobile, inline button on desktop)
 
+**Mobile:**
+![Meal list — mobile](meal-list-mobile.png)
+
+**Desktop:**
+![Meal list — desktop](meal-list-desktop.png)
+
 ### Meal Card Icon
 - Each meal has a randomly assigned icon from a fixed list (meat, fish, vegetables, soup, etc.)
 - Icon is assigned once at creation and does not change
@@ -26,6 +32,8 @@ Lets users build and maintain their recipe library — browse all meals, view a 
 - Each ingredient row displays: name, quantity, unit, category badge, and a trash icon for removal
 - "+ Add ingredient" button at the bottom opens the ingredient picker
 
+![Meal detail — mobile](meal-detail-mobile.png)
+
 ### Delete Meal
 - Mobile: swipe-to-delete on the list card (swipe left → tap trash icon)
 - Desktop: trash icon on the card footer
@@ -33,11 +41,15 @@ Lets users build and maintain their recipe library — browse all meals, view a 
 - Two buttons: Cancel and Delete (no typing required)
 - Deleting a meal does not affect existing weekly menus that reference it
 
+![Delete confirmation — mobile](delete-confirmation-mobile.png)
+
 ### Add Ingredient — Pick Existing
 - Bottom sheet (mobile) or modal (desktop) opens with a search bar at the top
 - "FROM YOUR LIBRARY" section shows previously used ingredients in the household, each with: category badge, name, unit, and a "+" button
 - Tapping "+" on an existing ingredient opens a minimal quantity-only prompt (name, unit, and category are pre-filled)
 - Search filters the library list by ingredient name
+
+![Add ingredient — pick existing — mobile](ingredient-pick-existing-mobile.png)
 
 ### Add Ingredient — New
 - Below the library list, "OR ADD NEW" section with a name input field
@@ -48,10 +60,14 @@ Lets users build and maintain their recipe library — browse all meals, view a 
 - Unit list: `units`, `kg`, `l`, `pack`, `bunch`, `can` (translatable via i18n)
 - "Save ingredient" button adds the ingredient to the meal
 
+![Add ingredient — new — mobile](add-ingredient-mobile.png)
+
 ### Edit Ingredient
 - Tapping an existing ingredient in the detail view opens the same "new ingredient" component, pre-filled with the current values
 - User can update name, quantity, unit, or category
 - If the name is changed, AI re-classifies the category (with the same tappable override)
+
+![Ingredient — desktop](ingredient-desktop.png)
 
 ### Ingredient Storage
 - Each ingredient is stored per-meal (no cross-meal sharing at the database level)
