@@ -90,29 +90,22 @@ Lets users manage their household from the Settings page — view members, share
 
 ---
 
-## 7. Meal Library
+## 7. Manage Meals
 
-A shared library of meals within a household.
+Lets users build and maintain their recipe library — browse all meals, view a single meal's ingredients, add new meals, and delete meals they no longer need.
 
-- View all meals in the household
-- Create a new meal with a name
-- Edit or delete an existing meal
-- Each meal has a list of ingredients (see section 8)
+- Meal list shows all meals with name, ingredient count, and "Updated X ago" timestamp
+- Search filters meals by name only
+- Mobile: single-column cards with swipe-to-delete; Desktop: two-column grid with visible trash icon
+- Create meal: enter name → navigate to detail page with ingredient picker open
+- Each meal gets a randomly assigned icon from a fixed list
+- Delete meal: simple two-button confirmation (no typing required)
+- Add ingredient: pick from household library (qty-only prompt) or type new (AI auto-classifies category)
+- Edit ingredient: reuse the same form, pre-filled with current values
+- Unit list is fixed: `units`, `kg`, `l`, `pack`, `bunch`, `can` (translatable)
+- Ingredients are stored per-meal (no cross-meal sharing)
 
----
-
-## 8. Ingredient Management
-
-Ingredients belong to a meal and have: `name`, `quantity`, `unit`, and `category`.
-
-- Add ingredients to a meal
-- When adding an ingredient, the user can:
-  - Pick from previously used ingredients in the household (reuse)
-  - Or type a new ingredient name
-- **If a new ingredient name is entered, the category is auto-detected using the Anthropic API** (e.g. "potatoes" → "vegetables")
-- The user can override the auto-detected category
-- Available units: `g`, `kg`, `ml`, `l`, `units`, and other common units
-- Edit or delete ingredients from a meal
+> **Requirements**: [MW-008 — Manage Meals](../features/MW-008-meal-management/MW-008-meal-management.md)
 
 ---
 
