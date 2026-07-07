@@ -16,6 +16,7 @@ import { Route as AuthenticatedShoppingRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedMealsRouteImport } from './routes/_authenticated/meals'
+import { Route as AuthenticatedMealsMealIdRouteImport } from './routes/_authenticated/meals.$mealId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -51,38 +52,61 @@ const AuthenticatedMealsRoute = AuthenticatedMealsRouteImport.update({
   path: '/meals',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMealsMealIdRoute =
+  AuthenticatedMealsMealIdRouteImport.update({
+    id: '/$mealId',
+    path: '/$mealId',
+    getParentRoute: () => AuthenticatedMealsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/meals': typeof AuthenticatedMealsRoute
+  '/meals': typeof AuthenticatedMealsRouteWithChildren
   '/planner': typeof AuthenticatedPlannerRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shopping': typeof AuthenticatedShoppingRoute
+  '/meals/$mealId': typeof AuthenticatedMealsMealIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/meals': typeof AuthenticatedMealsRoute
+  '/meals': typeof AuthenticatedMealsRouteWithChildren
   '/planner': typeof AuthenticatedPlannerRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shopping': typeof AuthenticatedShoppingRoute
+  '/meals/$mealId': typeof AuthenticatedMealsMealIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authenticated/meals': typeof AuthenticatedMealsRoute
+  '/_authenticated/meals': typeof AuthenticatedMealsRouteWithChildren
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shopping': typeof AuthenticatedShoppingRoute
+  '/_authenticated/meals/$mealId': typeof AuthenticatedMealsMealIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/meals' | '/planner' | '/settings' | '/shopping'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/meals'
+    | '/planner'
+    | '/settings'
+    | '/shopping'
+    | '/meals/$mealId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/meals' | '/planner' | '/settings' | '/shopping'
+  to:
+    | '/'
+    | '/login'
+    | '/meals'
+    | '/planner'
+    | '/settings'
+    | '/shopping'
+    | '/meals/$mealId'
   id:
     | '__root__'
     | '/'
@@ -92,6 +116,7 @@ export interface FileRouteTypes {
     | '/_authenticated/planner'
     | '/_authenticated/settings'
     | '/_authenticated/shopping'
+    | '/_authenticated/meals/$mealId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -151,18 +176,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMealsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/meals/$mealId': {
+      id: '/_authenticated/meals/$mealId'
+      path: '/$mealId'
+      fullPath: '/meals/$mealId'
+      preLoaderRoute: typeof AuthenticatedMealsMealIdRouteImport
+      parentRoute: typeof AuthenticatedMealsRoute
+    }
   }
 }
 
+interface AuthenticatedMealsRouteChildren {
+  AuthenticatedMealsMealIdRoute: typeof AuthenticatedMealsMealIdRoute
+}
+
+const AuthenticatedMealsRouteChildren: AuthenticatedMealsRouteChildren = {
+  AuthenticatedMealsMealIdRoute: AuthenticatedMealsMealIdRoute,
+}
+
+const AuthenticatedMealsRouteWithChildren =
+  AuthenticatedMealsRoute._addFileChildren(AuthenticatedMealsRouteChildren)
+
 interface AuthenticatedRouteChildren {
-  AuthenticatedMealsRoute: typeof AuthenticatedMealsRoute
+  AuthenticatedMealsRoute: typeof AuthenticatedMealsRouteWithChildren
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShoppingRoute: typeof AuthenticatedShoppingRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedMealsRoute: AuthenticatedMealsRoute,
+  AuthenticatedMealsRoute: AuthenticatedMealsRouteWithChildren,
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShoppingRoute: AuthenticatedShoppingRoute,
