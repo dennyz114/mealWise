@@ -5,6 +5,7 @@ type AvatarProps = {
   alt?: string
   displayName: string
   size?: 'sm' | 'md'
+  color?: { bg: string; text: string }
   className?: string
 }
 
@@ -13,7 +14,7 @@ const sizeClasses = {
   md: 'size-10 text-base',
 }
 
-export const Avatar = ({ src, alt, displayName, size = 'sm', className }: AvatarProps) => {
+export const Avatar = ({ src, alt, displayName, size = 'sm', color, className }: AvatarProps) => {
   const initial = displayName?.charAt(0)?.toUpperCase() ?? '?'
 
   if (src) {
@@ -23,6 +24,21 @@ export const Avatar = ({ src, alt, displayName, size = 'sm', className }: Avatar
         alt={alt ?? displayName}
         className={cn('rounded-full object-cover', sizeClasses[size], className)}
       />
+    )
+  }
+
+  if (color) {
+    return (
+      <div
+        className={cn(
+          'inline-flex items-center justify-center rounded-full font-medium',
+          sizeClasses[size],
+          className,
+        )}
+        style={{ backgroundColor: color.bg, color: color.text }}
+      >
+        {initial}
+      </div>
     )
   }
 

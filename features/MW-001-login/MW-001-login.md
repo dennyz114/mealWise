@@ -53,14 +53,3 @@ The login feature allows users to authenticate using their Google account via Su
 
 ### Terms & Privacy
 - "Terms of Service" and "Privacy Policy" links are placeholders for now (no actual pages required)
-
-## Mockups
-
-### Desktop — Dark Mode
-![Desktop Dark Mode](./desktop-dark.png)
-
-### Desktop — Light Mode
-![Desktop Light Mode](./desktop-light.png)
-
-### Mobile — Light & Dark
-![Mobile Light and Dark](./mobile-light-dark.png)

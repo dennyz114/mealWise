@@ -75,18 +75,33 @@ A household is the core unit — all meals, menus, and shopping lists belong to 
 
 ---
 
-## 6. Meal Library
+## 6. Household Settings
+
+Lets users manage their household from the Settings page — view members, share the join code, and either close or leave the household depending on their role.
+
+- Settings page accessible from profile dropdown
+- Account section: display name and email (read-only for now)
+- Household section: editable name (owner only), join code with copy button, member list with color-coded avatars
+- Owner sees "Close household" in danger zone; member sees "Leave household"
+- Close household requires typing the exact name to confirm
+- Both close and leave redirect to create/join household screen
+
+> **Requirements**: [MW-007 — Household Settings](../features/MW-007-household-settings/MW-007-household-settings.md)
+
+---
+
+## 7. Meal Library
 
 A shared library of meals within a household.
 
 - View all meals in the household
 - Create a new meal with a name
 - Edit or delete an existing meal
-- Each meal has a list of ingredients (see section 4)
+- Each meal has a list of ingredients (see section 8)
 
 ---
 
-## 7. Ingredient Management
+## 8. Ingredient Management
 
 Ingredients belong to a meal and have: `name`, `quantity`, `unit`, and `category`.
 
@@ -101,7 +116,7 @@ Ingredients belong to a meal and have: `name`, `quantity`, `unit`, and `category
 
 ---
 
-## 8. Weekly Menu Planner
+## 9. Weekly Menu Planner
 
 Plan meals for any week, not just the current one.
 
@@ -113,7 +128,7 @@ Plan meals for any week, not just the current one.
 
 ---
 
-## 9. Shopping List
+## 10. Shopping List
 
 Generated from the ingredients of all meals in a weekly menu.
 
@@ -129,7 +144,7 @@ Generated from the ingredients of all meals in a weekly menu.
 
 ---
 
-## 10. Button Component
+## 11. Button Component
 
 A reusable Button component extending shadcn/ui with custom variants and states.
 
@@ -144,7 +159,7 @@ A reusable Button component extending shadcn/ui with custom variants and states.
 
 ---
 
-## 11. UI / UX Considerations
+## 12. UI / UX Considerations
 
 - **Mobile-first**: all screens must be fully functional and comfortable on a phone
 - Desktop is supported but secondary

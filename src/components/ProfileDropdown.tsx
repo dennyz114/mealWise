@@ -170,7 +170,11 @@ export const ProfileDropdown = ({ user, household }: ProfileDropdownProps) => {
 
           <DropdownMenu.Item
             className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none hover:bg-[var(--color-bg-secondary)]"
-            onSelect={(e) => e.preventDefault()}
+            onSelect={(e) => {
+              e.preventDefault()
+              navigate({ to: '/settings' })
+              setOpen(false)
+            }}
           >
             <i className="ti ti-settings text-base" />
             <span>{t('profile.settings')}</span>
