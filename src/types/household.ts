@@ -13,3 +13,9 @@ export type HouseholdMember = {
   role: 'owner' | 'member'
   joinedAt: string
 }
+
+export type HouseholdMemberWithProfile = HouseholdMember & {
+  displayName: string
+  email: string
+  avatarUrl: string
+}

@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Household } from '@/types/household'
+import type { Household, HouseholdMemberWithProfile } from '@/types/household'
 
 /**
  * Maps a raw database row from the households table to a camelCase Household type.
@@ -132,4 +132,127 @@ export const joinHousehold = async (
   if (memberError) throw memberError
 
   return mapHousehold(household)
+}
+
+export const getHouseholdMembers = async (
+  householdId: string,
+): Promise<HouseholdMemberWithProfile[]> => {
+  const { data, error } = await supabase
+    .from('household_members')
+    .select(`
+      id,
+      household_id,
+      user_id,
+      role,
+      joined_at,
+      profile:profiles(display_name, email, avatar_url)
+    `)
+    .eq('household_id', householdId)
+
+  if (error) throw error
+
+  return data.map((row) => {
+    const profile = row.profile as unknown as {
+      display_name: string
+      email: string
+      avatar_url: string
+    } | null
+
+    return {
+      id: row.id,
+      householdId: row.household_id,
+      userId: row.user_id,
+      role: row.role as 'owner' | 'member',
+      joinedAt: row.joined_at,
+      displayName: profile?.display_name ?? '',
+      email: profile?.email ?? '',
+      avatarUrl: profile?.avatar_url ?? '',
+    }
+  })
+}
+
+export const updateHouseholdName = async (
+  householdId: string,
+  name: string,
+): Promise<void> => {
+  const { error } = await supabase
+    .from('households')
+    .update({ name })
+    .eq('id', householdId)
+
+  if (error) throw error
+}
+
+export const deleteHousehold = async (
+  householdId: string,
+  userId: string,
+): Promise<void> => {
+  const { data: member, error: memberError } = await supabase
+    .from('household_members')
+    .select('role')
+    .eq('household_id', householdId)
+    .eq('user_id', userId)
+    .single()
+
+  if (memberError) throw memberError
+  if (member?.role !== 'owner') throw new Error('Only the owner can close the household')
+
+  const { error: deleteMembersError } = await supabase
+    .from('household_members')
+    .delete()
+    .eq('household_id', householdId)
+
+  if (deleteMembersError) throw deleteMembersError
+
+  const { error: deleteHouseholdError } = await supabase
+    .from('households')
+    .delete()
+    .eq('id', householdId)
+
+  if (deleteHouseholdError) throw deleteHouseholdError
+}
+
+export const leaveHousehold = async (
+  householdId: string,
+  userId: string,
+): Promise<void> => {
+  const { data: member, error: memberError } = await supabase
+    .from('household_members')
+    .select('role')
+    .eq('household_id', householdId)
+    .eq('user_id', userId)
+    .single()
+
+  if (memberError) throw memberError
+
+  if (member?.role === 'owner') {
+    const { data: nextMember, error: nextError } = await supabase
+      .from('household_members')
+      .select('user_id')
+      .eq('household_id', householdId)
+      .neq('user_id', userId)
+      .order('joined_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+    if (nextError) throw nextError
+
+    if (nextMember) {
+      const { error: transferError } = await supabase
+        .from('household_members')
+        .update({ role: 'owner' })
+        .eq('household_id', householdId)
+        .eq('user_id', nextMember.user_id)
+
+      if (transferError) throw transferError
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from('household_members')
+    .delete()
+    .eq('household_id', householdId)
+    .eq('user_id', userId)
+
+  if (deleteError) throw deleteError
 }

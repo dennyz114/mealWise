@@ -86,6 +86,7 @@ export const CreateHouseholdSheet = ({ open, onOpenChange, user }: CreateHouseho
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t('household.createNamePlaceholder')}
+          maxLength={50}
           className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-[9px_12px] text-[13px] text-[var(--color-text-primary)] outline-none transition-colors placeholder:text-[var(--color-text-tertiary)] focus:border-[1.5px] focus:border-[var(--color-accent)]"
         />
       </div>

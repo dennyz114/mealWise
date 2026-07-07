@@ -78,17 +78,3 @@ Deterministic color assignment based on the first letter of the member's name:
 ### Update to MW-006 — Create Household Name Validation
 - Add max length of 50 characters to the household name input in the create household flow
 - Show validation error if name exceeds 50 characters
-
-## Mockups
-
-### Settings Owner — Mobile Dark
-![Settings Owner Mobile](./settings-owner-mobile.png)
-
-### Settings Member — Mobile Dark
-![Settings Member Mobile](./settings-member-mobile.png)
-
-### Close Household confirmation — Mobile Dark
-![Close Household confirmation mobile](./close-household-confirmation-mobile.png)
-
-### Settings Owner — Desktop Dark
-![Settings Owner Desktop](./settings-owner-desktop.png)
