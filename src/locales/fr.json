@@ -75,6 +75,7 @@
     "recipeCount": "VOS RECETTES — {count}",
     "emptyTitle": "Pas encore de repas",
     "emptyDescription": "Créez votre premier repas pour commencer.",
+    "addYourFirstMeal": "Ajoutez votre premier repas",
     "newMeal": "Nouveau repas",
     "createTitle": "Nouveau repas",
     "nameLabel": "Nom du repas",

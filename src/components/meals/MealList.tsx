@@ -2,6 +2,7 @@ import type { Meal } from '@/types/meals'
 import { useTranslation } from '@/hooks/useTranslation'
 import { MealCard } from './MealCard'
 import { SwipeableCard } from './SwipeableCard'
+import { EmptyState } from '@/components/ui/empty-state'
 
 type MealListProps = {
   meals: Meal[]
@@ -10,6 +11,7 @@ type MealListProps = {
   isDesktop: boolean
   onMealClick: (meal: Meal) => void
   onDeleteMeal: (meal: Meal) => void
+  onAddMeal: () => void
 }
 
 export const MealList = ({
@@ -19,6 +21,7 @@ export const MealList = ({
   isDesktop,
   onMealClick,
   onDeleteMeal,
+  onAddMeal,
 }: MealListProps) => {
   const { t } = useTranslation()
 
@@ -32,15 +35,13 @@ export const MealList = ({
 
   if (meals.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <i className="ti ti-tools-kitchen-2 mb-3 text-[40px] text-[var(--color-text-tertiary)]" />
-        <p className="text-[15px] font-medium text-[var(--color-text-primary)]">
-          {t('meals.emptyTitle')}
-        </p>
-        <p className="mt-1 text-[13px] text-[var(--color-text-secondary)]">
-          {t('meals.emptyDescription')}
-        </p>
-      </div>
+      <EmptyState
+        icon="ti-tools-kitchen-2"
+        title={t('meals.emptyTitle')}
+        description={t('meals.emptyDescription')}
+        actionLabel={t('meals.addYourFirstMeal')}
+        onAction={onAddMeal}
+      />
     )
   }
 

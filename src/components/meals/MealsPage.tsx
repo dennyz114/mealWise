@@ -107,6 +107,7 @@ export const MealsPage = () => {
         isDesktop={isDesktop}
         onMealClick={handleMealClick}
         onDeleteMeal={handleDeleteMeal}
+        onAddMeal={() => setIsCreateOpen(true)}
       />
 
       {/* Mobile FAB */}
