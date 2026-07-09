@@ -108,7 +108,22 @@
     "newIngredientTitle": "Nouvel ingrédient",
     "newIngredientSubtitle": "Remplissez les détails. La catégorie est détectée automatiquement.",
     "pickIngredientTitle": "Ajouter un ingrédient",
-    "pickIngredientSubtitle": "Choisissez dans votre bibliothèque ou ajoutez-en un nouveau."
+    "pickIngredientSubtitle": "Choisissez dans votre bibliothèque ou ajoutez-en un nouveau.",
+    "saveIngredientError": "Échec de l'enregistrement de l'ingrédient. Veuillez réessayer.",
+    "createMealError": "Échec de la création du repas. Veuillez réessayer.",
+    "detectingCategory": "Détection de la catégorie...",
+    "noMatchingIngredients": "Aucun ingrédient correspondant.",
+    "addButton": "Ajouter",
+    "mealNotFound": "Repas non trouvé."
+  },
+  "time": {
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {minutes}m",
+    "hoursAgo": "il y a {hours}h",
+    "daysAgo": "il y a {days}j",
+    "weeksAgo": "il y a {weeks}sem",
+    "monthsAgo": "il y a {months}mois",
+    "yearsAgo": "il y a {years}an"
   },
   "units": {
     "units": "unités",

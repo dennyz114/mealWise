@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { useHousehold } from '@/hooks/useHousehold'
@@ -21,6 +21,15 @@ export const MealDetailPage = () => {
   const [editName, setEditName] = useState('')
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const [editingIngredient, setEditingIngredient] = useState<MealIngredient | null>(null)
+
+  // Open ingredient picker automatically if navigated here after creating a new meal
+  useEffect(() => {
+    const storedMealId = sessionStorage.getItem('addIngredient')
+    if (storedMealId === mealId) {
+      sessionStorage.removeItem('addIngredient')
+      setIsPickerOpen(true)
+    }
+  }, [mealId])
 
   const { data: meal, isLoading } = useQuery({
     queryKey: queryKeys.mealDetail(mealId),
@@ -95,7 +104,7 @@ export const MealDetailPage = () => {
     return (
       <div className="p-4 text-center">
         <p className="text-[15px] text-[var(--color-text-secondary)]">
-          Meal not found.
+          {t('meals.mealNotFound')}
         </p>
       </div>
     )

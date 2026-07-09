@@ -108,7 +108,22 @@
     "newIngredientTitle": "New ingredient",
     "newIngredientSubtitle": "Fill in the details. Category is auto-detected.",
     "pickIngredientTitle": "Add ingredient",
-    "pickIngredientSubtitle": "Pick from your library or add a new one."
+    "pickIngredientSubtitle": "Pick from your library or add a new one.",
+    "saveIngredientError": "Failed to save ingredient. Please try again.",
+    "createMealError": "Failed to create meal. Please try again.",
+    "detectingCategory": "Detecting category...",
+    "noMatchingIngredients": "No matching ingredients.",
+    "addButton": "Add",
+    "mealNotFound": "Meal not found."
+  },
+  "time": {
+    "justNow": "just now",
+    "minutesAgo": "{minutes}m ago",
+    "hoursAgo": "{hours}h ago",
+    "daysAgo": "{days}d ago",
+    "weeksAgo": "{weeks}w ago",
+    "monthsAgo": "{months}mo ago",
+    "yearsAgo": "{years}y ago"
   },
   "units": {
     "units": "units",

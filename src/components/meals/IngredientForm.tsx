@@ -186,7 +186,7 @@ export const IngredientForm = ({
           <div className="flex items-center gap-2 py-2">
             <div className="size-4 animate-spin rounded-full border-2 border-[var(--color-border-default)] border-t-[var(--color-accent)]" />
             <span className="text-[12px] text-[var(--color-text-secondary)]">
-              Detecting category...
+              {t('meals.detectingCategory')}
             </span>
           </div>
         )}

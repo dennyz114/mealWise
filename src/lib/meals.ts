@@ -221,29 +221,23 @@ export const deleteIngredient = async (ingredientId: string): Promise<void> => {
 export const getMealIngredientCounts = async (
   householdId: string,
 ): Promise<Record<string, number>> => {
-  const { data: meals, error: mealsError } = await supabase
-    .from('meals')
-    .select('id')
-    .eq('household_id', householdId)
+  const [mealsResult, ingredientsResult] = await Promise.all([
+    supabase.from('meals').select('id').eq('household_id', householdId),
+    supabase.from('meal_ingredients').select('meal_id'),
+  ])
 
-  if (mealsError) throw mealsError
-  if (!meals || meals.length === 0) return {}
-
-  const mealIds = meals.map((m) => m.id)
-
-  const { data: ingredients, error: ingredientsError } = await supabase
-    .from('meal_ingredients')
-    .select('meal_id')
-    .in('meal_id', mealIds)
-
-  if (ingredientsError) throw ingredientsError
+  if (mealsResult.error) throw mealsResult.error
+  if (ingredientsResult.error) throw ingredientsResult.error
 
   const counts: Record<string, number> = {}
-  for (const meal of meals) {
+  for (const meal of mealsResult.data ?? []) {
     counts[meal.id] = 0
   }
-  for (const ing of ingredients ?? []) {
-    counts[ing.meal_id] = (counts[ing.meal_id] ?? 0) + 1
+  for (const ing of ingredientsResult.data ?? []) {
+    const mealId = ing.meal_id
+    if (mealId && counts[mealId] !== undefined) {
+      counts[mealId]++
+    }
   }
   return counts
 }

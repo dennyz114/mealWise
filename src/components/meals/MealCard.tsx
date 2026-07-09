@@ -1,30 +1,30 @@
-import type { Meal } from '@/types/meals'
 import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/utils'
+import type { Meal } from '@/types/meals'
 
-const formatRelativeTime = (dateString: string): string => {
+const formatRelativeTime = (dateString: string, t: (key: string, params?: Record<string, string | number>) => string): string => {
   const now = Date.now()
   const then = new Date(dateString).getTime()
   const diffMs = now - then
 
   const minutes = Math.floor(diffMs / 60_000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1) return t('time.justNow')
+  if (minutes < 60) return t('time.minutesAgo', { minutes })
 
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return t('time.hoursAgo', { hours })
 
   const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
+  if (days < 7) return t('time.daysAgo', { days })
 
   const weeks = Math.floor(days / 7)
-  if (weeks < 4) return `${weeks}w ago`
+  if (weeks < 4) return t('time.weeksAgo', { weeks })
 
   const months = Math.floor(days / 30)
-  if (months < 12) return `${months}mo ago`
+  if (months < 12) return t('time.monthsAgo', { months })
 
   const years = Math.floor(months / 12)
-  return `${years}y ago`
+  return t('time.yearsAgo', { years })
 }
 
 type MealCardProps = {
@@ -79,7 +79,7 @@ export const MealCard = ({
         </p>
         {isDesktop && (
           <p className="mt-0.5 text-[12px] text-[var(--color-text-tertiary)]">
-            {t('meals.updatedAgo', { time: formatRelativeTime(meal.updatedAt) })}
+            {t('meals.updatedAgo', { time: formatRelativeTime(meal.updatedAt, t) })}
           </p>
         )}
       </div>

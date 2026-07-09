@@ -1,4 +1,4 @@
-import type { MealIngredient } from '@/types/meals'
+import type { MealIngredient, IngredientCategory } from '@/types/meals'
 import { useTranslation } from '@/hooks/useTranslation'
 import { CategoryBadge } from './CategoryBadge'
 
@@ -31,15 +31,7 @@ export const IngredientRow = ({
         </div>
         <div className="mt-1">
           <CategoryBadge
-            category={
-              ingredient.category as
-                | 'vegetables'
-                | 'proteins'
-                | 'pantry'
-                | 'fruits'
-                | 'spices'
-                | 'cleaning'
-            }
+            category={ingredient.category as IngredientCategory}
           />
         </div>
       </div>

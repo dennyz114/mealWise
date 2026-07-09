@@ -54,10 +54,11 @@ Junction table linking users to households with a role.
 A meal belongs to a household and can be reused across weekly menus.
 
 | Column | Type | Notes |
-|---|---|---|
+|---|---|---|---|
 | `id` | uuid | PK |
 | `household_id` | uuid | References `households.id` |
 | `name` | text | |
+| `icon` | text | Icon name from Tabler Icons, randomly assigned at creation |
 | `created_by` | uuid | References `auth.users.id` |
 | `created_at` | timestamptz | |
 | `updated_at` | timestamptz | |

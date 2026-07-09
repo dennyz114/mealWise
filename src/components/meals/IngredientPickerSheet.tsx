@@ -30,6 +30,7 @@ export const IngredientPickerSheet = ({
   const [search, setSearch] = useState('')
   const [addingItem, setAddingItem] = useState<LibraryIngredient | null>(null)
   const [addQuantity, setAddQuantity] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const { data: library = [], isLoading: isLibraryLoading } = useQuery({
     queryKey: queryKeys.ingredientLibrary(household?.id ?? ''),
@@ -62,6 +63,10 @@ export const IngredientPickerSheet = ({
       setAddingItem(null)
       setAddQuantity('')
       setSearch('')
+      setError(null)
+    },
+    onError: () => {
+      setError(t('meals.saveIngredientError'))
     },
   })
 
@@ -128,7 +133,7 @@ export const IngredientPickerSheet = ({
 
               {!isLibraryLoading && filteredLibrary.length === 0 && (
                 <p className="py-4 text-center text-[13px] text-[var(--color-text-secondary)]">
-                  {search ? 'No matching ingredients.' : t('meals.libraryEmpty')}
+                  {search ? t('meals.noMatchingIngredients') : t('meals.libraryEmpty')}
                 </p>
               )}
 
@@ -140,15 +145,7 @@ export const IngredientPickerSheet = ({
                       className="flex items-center gap-[var(--space-3)] border-b border-[var(--color-border-default)] py-2.5"
                     >
                       <CategoryBadge
-                        category={
-                          item.category as
-                            | 'vegetables'
-                            | 'proteins'
-                            | 'pantry'
-                            | 'fruits'
-                            | 'spices'
-                            | 'cleaning'
-                        }
+                        category={item.category}
                       />
                       <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--color-text-primary)]">
                         {item.name}
@@ -201,7 +198,7 @@ export const IngredientPickerSheet = ({
                     }
                     isLoading={addMutation.isPending}
                   >
-                    Add
+                    {t('meals.addButton')}
                   </Button>
                   <Button
                     variant="secondary"
@@ -231,6 +228,10 @@ export const IngredientPickerSheet = ({
           onSave={handleNewIngredientSave}
           isLoading={addMutation.isPending}
         />
+
+        {error && (
+          <p className="text-[13px] text-[#dc2626]">{error}</p>
+        )}
       </div>
     </BottomSheet>
   )

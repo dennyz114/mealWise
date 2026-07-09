@@ -35,5 +35,5 @@ export type IngredientCategory =
 export type LibraryIngredient = {
   name: string
   unit: string
-  category: string
+  category: IngredientCategory
 }
