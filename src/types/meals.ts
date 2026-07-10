@@ -47,9 +47,3 @@ export type TemporaryIngredient = {
   isExisting: boolean
 }
 
-export type MealDraft = {
-  mealName: string
-  ingredients: TemporaryIngredient[]
-  step: 'ingredients' | 'review'
-  createdAt: number
-}

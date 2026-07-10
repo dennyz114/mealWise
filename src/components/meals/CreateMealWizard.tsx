@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useHousehold } from '@/hooks/useHousehold'
@@ -12,11 +12,9 @@ import { MealNameStep } from './wizard/MealNameStep'
 import { IngredientPickerStep } from './wizard/IngredientPickerStep'
 import { IngredientReviewStep } from './wizard/IngredientReviewStep'
 import { MealSuccessScreen } from './wizard/MealSuccessScreen'
-import type { TemporaryIngredient, MealDraft } from '@/types/meals'
+import type { TemporaryIngredient } from '@/types/meals'
 
 type WizardStep = 'name' | 'ingredients' | 'review' | 'success'
-
-const DRAFT_TTL = 24 * 60 * 60 * 1000 // 24 hours
 
 type CreateMealWizardProps = {
   open: boolean
@@ -38,7 +36,6 @@ export const CreateMealWizard = ({
   const [ingredients, setIngredients] = useState<TemporaryIngredient[]>([])
   const [createdMealId, setCreatedMealId] = useState<string | null>(null)
 
-  const draftKey = household?.id ? `mealDraft_${household.id}` : null
 
   const resetState = () => {
     setStep('name')
@@ -47,48 +44,12 @@ export const CreateMealWizard = ({
     setCreatedMealId(null)
   }
 
-  // Load draft on mount
-  useEffect(() => {
-    if (!open || !draftKey) return
-
-    try {
-      const stored = localStorage.getItem(draftKey)
-      if (stored) {
-        const draft: MealDraft = JSON.parse(stored)
-        const isExpired = Date.now() - draft.createdAt > DRAFT_TTL
-
-        if (!isExpired) {
-          setMealName(draft.mealName)
-          setIngredients(draft.ingredients)
-          setStep(draft.step === 'review' ? 'review' : 'ingredients')
-        } else {
-          localStorage.removeItem(draftKey)
-        }
-      }
-    } catch {
-      localStorage.removeItem(draftKey)
+  const handleClose = (isOpen: boolean) => {
+    if (!isOpen) {
+      resetState()
     }
-  }, [open, draftKey])
-
-  // Save draft when closing at step 2 or 3
-  const handleClose = useCallback(
-    (isOpen: boolean) => {
-      if (!isOpen && draftKey && (step === 'ingredients' || step === 'review')) {
-        const draft: MealDraft = {
-          mealName,
-          ingredients,
-          step: step === 'review' ? 'review' : 'ingredients',
-          createdAt: Date.now(),
-        }
-        localStorage.setItem(draftKey, JSON.stringify(draft))
-      }
-      if (!isOpen) {
-        resetState()
-      }
-      onOpenChange(isOpen)
-    },
-    [draftKey, step, mealName, ingredients, onOpenChange],
-  )
+    onOpenChange(isOpen)
+  }
 
   const createMutation = useMutation({
     mutationFn: () => {
@@ -103,11 +64,6 @@ export const CreateMealWizard = ({
     onSuccess: async (meal) => {
       setCreatedMealId(meal.id)
       setStep('success')
-
-      // Clear draft
-      if (draftKey) {
-        localStorage.removeItem(draftKey)
-      }
 
       // Invalidate queries
       await queryClient.invalidateQueries({
