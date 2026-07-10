@@ -12,6 +12,10 @@ const buttonVariants = cva(
           'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]',
         secondary:
           'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]',
+        success:
+          'bg-[#0D9488] text-white border-[#0D9488] hover:bg-[#0F766E]',
+        ghost:
+          'border-transparent bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]',
         'icon-only':
           'size-10 p-0 text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]',
       },

@@ -37,3 +37,19 @@ export type LibraryIngredient = {
   unit: string
   category: IngredientCategory
 }
+
+export type TemporaryIngredient = {
+  id: string
+  name: string
+  quantity: number
+  unit: IngredientUnit
+  category: IngredientCategory
+  isExisting: boolean
+}
+
+export type MealDraft = {
+  mealName: string
+  ingredients: TemporaryIngredient[]
+  step: 'ingredients' | 'review'
+  createdAt: number
+}

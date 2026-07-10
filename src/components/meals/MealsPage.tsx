@@ -8,7 +8,7 @@ import { getMeals, deleteMeal, getMealIngredientCounts } from '@/lib/meals'
 import { queryKeys } from '@/lib/queryKeys'
 import { Button } from '@/components/ui/button'
 import { MealList } from './MealList'
-import { CreateMealSheet } from './CreateMealSheet'
+import { CreateMealWizard } from './CreateMealWizard'
 import { DeleteMealDialog } from './DeleteMealDialog'
 import type { Meal } from '@/types/meals'
 
@@ -122,8 +122,8 @@ export const MealsPage = () => {
         </button>
       )}
 
-      {/* Create meal sheet */}
-      <CreateMealSheet
+      {/* Create meal wizard */}
+      <CreateMealWizard
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
       />

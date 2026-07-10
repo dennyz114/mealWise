@@ -39,9 +39,10 @@ const CATEGORY_STYLES: Record<
 
 type CategoryBadgeProps = {
   category: IngredientCategory
+  name?: string
 }
 
-export const CategoryBadge = ({ category }: CategoryBadgeProps) => {
+export const CategoryBadge = ({ category, name }: CategoryBadgeProps) => {
   const { t } = useTranslation()
   const style = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.pantry
 
@@ -51,7 +52,7 @@ export const CategoryBadge = ({ category }: CategoryBadgeProps) => {
       style={{ background: style.bg, color: style.text }}
     >
       <i className={`ti ${style.icon} text-[12px]`} />
-      {t(`categories.${category}`)}
+      {name ?? t(`categories.${category}`)}
     </span>
   )
 }

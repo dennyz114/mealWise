@@ -6,10 +6,17 @@ type BottomSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   title?: string
+  headerRight?: ReactNode
   children: ReactNode
 }
 
-export const BottomSheet = ({ open, onOpenChange, title, children }: BottomSheetProps) => {
+export const BottomSheet = ({
+  open,
+  onOpenChange,
+  title,
+  headerRight,
+  children,
+}: BottomSheetProps) => {
   const { isDesktop } = useBreakpoint()
 
   return (
@@ -34,16 +41,19 @@ export const BottomSheet = ({ open, onOpenChange, title, children }: BottomSheet
                 {title}
               </Dialog.Title>
             )}
-            {isDesktop && (
-              <Dialog.Close asChild>
-                <button
-                  className="flex size-8 items-center justify-center rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] hover:text-[var(--color-text-primary)]"
-                  aria-label="Close"
-                >
-                  <i className="ti ti-x text-lg" />
-                </button>
-              </Dialog.Close>
-            )}
+            <div className="flex items-center gap-2">
+              {headerRight}
+              {isDesktop && (
+                <Dialog.Close asChild>
+                  <button
+                    className="flex size-8 items-center justify-center rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] hover:text-[var(--color-text-primary)]"
+                    aria-label="Close"
+                  >
+                    <i className="ti ti-x text-lg" />
+                  </button>
+                </Dialog.Close>
+              )}
+            </div>
           </div>
 
           {children}

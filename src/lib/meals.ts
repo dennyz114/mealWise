@@ -4,6 +4,7 @@ import type {
   MealWithIngredients,
   MealIngredient,
   LibraryIngredient,
+  TemporaryIngredient,
 } from '@/types/meals'
 
 const MEAL_ICONS = [
@@ -113,6 +114,68 @@ export const createMeal = async (
   if (!data) throw new Error('Failed to create meal')
 
   return mapMeal(data)
+}
+
+export const createMealWithIngredients = async (
+  householdId: string,
+  name: string,
+  userId: string,
+  ingredients: TemporaryIngredient[],
+): Promise<MealWithIngredients> => {
+  const icon = getRandomIcon()
+
+  const { data: meal, error: mealError } = await supabase
+    .from('meals')
+    .insert({
+      household_id: householdId,
+      name,
+      icon,
+      created_by: userId,
+    })
+    .select('id, household_id, name, icon, created_by, created_at, updated_at')
+    .single()
+
+  if (mealError) throw mealError
+  if (!meal) throw new Error('Failed to create meal')
+
+  if (ingredients.length === 0) {
+    return { ...mapMeal(meal), ingredients: [] }
+  }
+
+  const ingredientInserts = ingredients.map((ing) => ({
+    meal_id: meal.id,
+    name: ing.name,
+    quantity: ing.quantity,
+    unit: ing.unit,
+    category: ing.category,
+  }))
+
+  const { data: insertedIngredients, error: ingredientsError } = await supabase
+    .from('meal_ingredients')
+    .insert(ingredientInserts)
+    .select('id, meal_id, name, quantity, unit, category, created_at')
+
+  if (ingredientsError) throw ingredientsError
+
+  // Add new ingredients to the library
+  const newIngredients = ingredients.filter((ing) => !ing.isExisting)
+  if (newIngredients.length > 0) {
+    const libraryInserts = newIngredients.map((ing) => ({
+      household_id: householdId,
+      name: ing.name,
+      unit: ing.unit,
+      category: ing.category,
+    }))
+
+    await supabase
+      .from('ingredient_library')
+      .upsert(libraryInserts, { onConflict: 'household_id,name' })
+  }
+
+  return {
+    ...mapMeal(meal),
+    ingredients: (insertedIngredients ?? []).map(mapIngredient),
+  }
 }
 
 export const updateMealName = async (
@@ -246,22 +309,35 @@ export const getIngredientLibrary = async (
   householdId: string,
 ): Promise<LibraryIngredient[]> => {
   const { data, error } = await supabase
-    .from('meal_ingredients')
-    .select('name, unit, category, meal:meals!inner(household_id)')
-    .eq('meal.household_id', householdId)
+    .from('ingredient_library')
+    .select('name, unit, category')
+    .eq('household_id', householdId)
+    .order('name')
 
   if (error) throw error
 
-  // Deduplicate by ingredient name, keeping the last occurrence
-  const seen = new Map<string, LibraryIngredient>()
+  return (data ?? []).map((row) => ({
+    name: row.name,
+    unit: row.unit,
+    category: row.category,
+  }))
+}
 
-  for (const row of data ?? []) {
-    seen.set(row.name, {
-      name: row.name,
-      unit: row.unit,
-      category: row.category,
-    })
-  }
+export const addToIngredientLibrary = async (
+  householdId: string,
+  ingredient: { name: string; unit: string; category: string },
+): Promise<void> => {
+  const { error } = await supabase
+    .from('ingredient_library')
+    .upsert(
+      {
+        household_id: householdId,
+        name: ingredient.name,
+        unit: ingredient.unit,
+        category: ingredient.category,
+      },
+      { onConflict: 'household_id,name' },
+    )
 
-  return Array.from(seen.values())
+  if (error) throw error
 }
