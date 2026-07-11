@@ -31,20 +31,23 @@ export const InlineQtyPrompt = ({
   }
 
   return (
-    <div className="mt-2 rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] p-3">
-      <div className="mb-2 flex items-center gap-2">
-        <span className="text-[13px] font-medium text-[var(--color-text-primary)]">
+    <div className="space-y-4 rounded-[var(--radius-lg)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-4">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <h3 className="text-[17px] font-medium text-[var(--color-text-primary)]">
           {ingredient.name}
-        </span>
+        </h3>
         <CategoryBadge category={ingredient.category as IngredientCategory} />
       </div>
 
-      <p className="mb-3 text-[12px] text-[var(--color-text-secondary)]">
-        {t('meals.wizardQtyPrompt', { unit: ingredient.unit })}
+      {/* Unit info */}
+      <p className="text-[13px] text-[var(--color-text-secondary)]">
+        {t('meals.wizardUnitInfo', { unit: ingredient.unit })}
       </p>
 
-      <div className="mb-3">
-        <label className="mb-1 block text-[12px] text-[var(--color-text-secondary)]">
+      {/* Quantity input */}
+      <div>
+        <label className="mb-1.5 block text-[13px] text-[var(--color-text-secondary)]">
           {t('meals.wizardQuantity')}
         </label>
         <input
@@ -54,23 +57,24 @@ export const InlineQtyPrompt = ({
           onKeyDown={handleKeyDown}
           min="0.1"
           step="0.5"
-          className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-3 py-2 text-[13px] text-[var(--color-text-primary)] outline-none focus:border-[1.5px] focus:border-[var(--color-accent)]"
+          className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] px-3 py-2.5 text-[13px] text-[var(--color-text-primary)] outline-none focus:border-[1.5px] focus:border-[var(--color-accent)]"
           autoFocus
         />
       </div>
 
-      <div className="flex gap-2">
+      {/* Actions */}
+      <div className="space-y-2">
         <Button
           onClick={handleAdd}
           disabled={quantity <= 0}
-          className="flex-1"
+          className="w-full"
         >
           {t('meals.wizardAddToMeal')}
         </Button>
         <Button
           variant="ghost"
           onClick={onCancel}
-          className="flex-1"
+          className="w-full"
         >
           {t('meals.wizardCancel')}
         </Button>

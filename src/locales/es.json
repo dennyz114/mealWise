@@ -143,7 +143,14 @@
     "wizardUnit": "Unidad",
     "wizardCategory": "Categoría",
     "wizardAddToMeal": "Agregar a la comida",
-    "wizardQtyPrompt": "Unidad: {unit} — ¿cuántas necesitas?"
+    "wizardQtyPrompt": "Unidad: {unit} — ¿cuántas necesitas?",
+    "wizardIngredientsLabel": "INGREDIENTES",
+    "wizardEmptyIngredients": "Busca un ingrediente para agregarlo a esta comida.",
+    "wizardSearching": "Buscando...",
+    "wizardNoMatches": "No hay coincidencias para \"{query}\"",
+    "wizardAddAsNew": "Agregar \"{name}\" como ingrediente nuevo",
+    "wizardUnitInfo": "Unidad: {unit} — ingresa la cantidad.",
+    "wizardNewIngredientSubtitle": "Completa los datos. La categoría se detecta automáticamente."
   },
   "time": {
     "justNow": "ahora mismo",

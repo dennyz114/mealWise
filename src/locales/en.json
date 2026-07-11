@@ -143,7 +143,14 @@
     "wizardUnit": "Unit",
     "wizardCategory": "Category",
     "wizardAddToMeal": "Add to meal",
-    "wizardQtyPrompt": "Unit: {unit} — how many do you need?"
+    "wizardQtyPrompt": "Unit: {unit} — how many do you need?",
+    "wizardIngredientsLabel": "INGREDIENTS",
+    "wizardEmptyIngredients": "Search for an ingredient to add it to this meal.",
+    "wizardSearching": "Searching...",
+    "wizardNoMatches": "No matches for \"{query}\"",
+    "wizardAddAsNew": "Add \"{name}\" as new ingredient",
+    "wizardUnitInfo": "Unit: {unit} — enter the quantity.",
+    "wizardNewIngredientSubtitle": "Fill in the details. Category is auto-detected."
   },
   "time": {
     "justNow": "just now",

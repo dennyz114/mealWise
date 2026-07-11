@@ -37,6 +37,7 @@ export const NewIngredientForm = ({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastDetectedNameRef = useRef('')
 
+  // AI category detection with 1 second debounce
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -120,14 +121,20 @@ export const NewIngredientForm = ({
     name.trim() && !isNaN(parseFloat(quantity)) && parseFloat(quantity) > 0
 
   return (
-    <div className="space-y-3 rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] p-3">
-      <h3 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-        {t('meals.wizardNewIngredient')}
-      </h3>
+    <div className="space-y-4 rounded-[var(--radius-lg)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-4">
+      {/* Header */}
+      <div>
+        <h3 className="text-[17px] font-medium text-[var(--color-text-primary)]">
+          {t('meals.wizardNewIngredient')}
+        </h3>
+        <p className="mt-0.5 text-[12px] text-[var(--color-text-secondary)]">
+          {t('meals.wizardNewIngredientSubtitle')}
+        </p>
+      </div>
 
       {/* Name */}
       <div>
-        <label className="mb-1 block text-[12px] text-[var(--color-text-secondary)]">
+        <label className="mb-1.5 block text-[13px] text-[var(--color-text-secondary)]">
           {t('meals.wizardIngredientName')}
         </label>
         <input
@@ -136,7 +143,7 @@ export const NewIngredientForm = ({
           onChange={(e) => handleNameChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={t('meals.wizardTypeNewIngredient')}
-          className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-3 py-2.5 text-[13px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-tertiary)] focus:border-[1.5px] focus:border-[var(--color-accent)]"
+          className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] px-3 py-2.5 text-[13px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-tertiary)] focus:border-[1.5px] focus:border-[var(--color-accent)]"
           autoFocus
         />
       </div>
@@ -144,7 +151,7 @@ export const NewIngredientForm = ({
       {/* Quantity + Unit */}
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="mb-1 block text-[12px] text-[var(--color-text-secondary)]">
+          <label className="mb-1.5 block text-[13px] text-[var(--color-text-secondary)]">
             {t('meals.wizardQuantity')}
           </label>
           <input
@@ -153,17 +160,17 @@ export const NewIngredientForm = ({
             onChange={(e) => setQuantity(e.target.value)}
             min="0.1"
             step="0.5"
-            className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-3 py-2.5 text-[13px] text-[var(--color-text-primary)] outline-none focus:border-[1.5px] focus:border-[var(--color-accent)]"
+            className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] px-3 py-2.5 text-[13px] text-[var(--color-text-primary)] outline-none focus:border-[1.5px] focus:border-[var(--color-accent)]"
           />
         </div>
         <div className="flex-1">
-          <label className="mb-1 block text-[12px] text-[var(--color-text-secondary)]">
+          <label className="mb-1.5 block text-[13px] text-[var(--color-text-secondary)]">
             {t('meals.wizardUnit')}
           </label>
           <select
             value={unit}
             onChange={(e) => setUnit(e.target.value as IngredientUnit)}
-            className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-3 py-2.5 text-[13px] text-[var(--color-text-primary)] outline-none focus:border-[1.5px] focus:border-[var(--color-accent)]"
+            className="w-full rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] px-3 py-2.5 text-[13px] text-[var(--color-text-primary)] outline-none focus:border-[1.5px] focus:border-[var(--color-accent)]"
           >
             {UNITS.map((u) => (
               <option key={u} value={u}>
@@ -176,7 +183,7 @@ export const NewIngredientForm = ({
 
       {/* Category */}
       <div>
-        <label className="mb-1 block text-[12px] text-[var(--color-text-secondary)]">
+        <label className="mb-1.5 block text-[13px] text-[var(--color-text-secondary)]">
           {t('meals.wizardCategory')}
         </label>
 
@@ -257,15 +264,19 @@ export const NewIngredientForm = ({
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2">
+      <div className="space-y-2">
         <Button
           onClick={handleAdd}
           disabled={!isFormValid}
-          className="flex-1"
+          className="w-full"
         >
           {t('meals.wizardAddToMeal')}
         </Button>
-        <Button variant="ghost" onClick={onCancel} className="flex-1">
+        <Button
+          variant="ghost"
+          onClick={onCancel}
+          className="w-full"
+        >
           {t('meals.wizardCancel')}
         </Button>
       </div>

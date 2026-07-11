@@ -143,7 +143,14 @@
     "wizardUnit": "Unité",
     "wizardCategory": "Catégorie",
     "wizardAddToMeal": "Ajouter au repas",
-    "wizardQtyPrompt": "Unité : {unit} — combien en avez-vous besoin ?"
+    "wizardQtyPrompt": "Unité : {unit} — combien en avez-vous besoin ?",
+    "wizardIngredientsLabel": "INGRÉDIENTS",
+    "wizardEmptyIngredients": "Recherchez un ingrédient pour l'ajouter à ce repas.",
+    "wizardSearching": "Recherche...",
+    "wizardNoMatches": "Aucune correspondance pour \"{query}\"",
+    "wizardAddAsNew": "Ajouter \"{name}\" comme nouvel ingrédient",
+    "wizardUnitInfo": "Unité : {unit} — saisissez la quantité.",
+    "wizardNewIngredientSubtitle": "Remplissez les détails. La catégorie est détectée automatiquement."
   },
   "time": {
     "justNow": "à l'instant",
