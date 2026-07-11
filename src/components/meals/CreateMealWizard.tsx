@@ -166,7 +166,6 @@ export const CreateMealWizard = ({
         return (
           <MealSuccessScreen
             mealName={mealName}
-            ingredients={ingredients}
             onViewMeal={handleViewMeal}
             onBackToMeals={handleBackToMeals}
           />

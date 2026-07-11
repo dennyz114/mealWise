@@ -65,12 +65,14 @@ export const IngredientForm = ({
       debounceRef.current = setTimeout(async () => {
         try {
           const result = await detectCategory(ingredientName)
-          setAiSuggestion(result)
-          if (!ingredient) {
-            setCategory(result)
+          if (result) {
+            setAiSuggestion(result)
+            if (!ingredient) {
+              setCategory(result)
+            }
           }
         } catch {
-          // AI detection failed, default to pantry
+          // AI detection failed, user can manually select
         } finally {
           setIsDetecting(false)
         }

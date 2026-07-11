@@ -53,15 +53,6 @@ export const IngredientReviewStep = ({
         ))}
       </div>
 
-      {/* Add more button */}
-      <button
-        onClick={onAddMore}
-        className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] border-[0.5px] border-[var(--color-border-default)] border-dashed bg-transparent py-3 text-[13px] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)]"
-      >
-        <i className="ti ti-plus text-[14px]" />
-        {t('meals.wizardAddAnother')}
-      </button>
-
       {/* Actions */}
       <div className="flex gap-2 pt-2">
         <Button variant="ghost" onClick={onBack} className="flex-1">

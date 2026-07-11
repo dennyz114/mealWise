@@ -22,7 +22,7 @@ export const NewIngredientForm = ({
   onAdd,
   onCancel,
 }: NewIngredientFormProps) => {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const [name, setName] = useState(initialName)
   const [quantity, setQuantity] = useState('1')
   const [unit, setUnit] = useState<IngredientUnit>('units')
@@ -57,12 +57,14 @@ export const NewIngredientForm = ({
 
       setIsDetecting(true)
       try {
-        const result = await detectCategory(name)
-        setAiSuggestion(result)
-        setCategory(result)
+        const result = await detectCategory(name, locale)
+        if (result) {
+          setAiSuggestion(result)
+          setCategory(result)
+        }
         lastDetectedNameRef.current = name
       } catch {
-        // AI detection failed, default to pantry
+        // AI detection failed, user can manually select
       } finally {
         setIsDetecting(false)
       }
@@ -73,7 +75,7 @@ export const NewIngredientForm = ({
         clearTimeout(debounceRef.current)
       }
     }
-  }, [name, userManuallyChanged])
+  }, [name, userManuallyChanged, locale])
 
   useEffect(() => {
     return () => {
