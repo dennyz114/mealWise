@@ -16,6 +16,7 @@ import { Route as AuthenticatedShoppingRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedMealsRouteImport } from './routes/_authenticated/meals'
+import { Route as AuthenticatedMealsIndexRouteImport } from './routes/_authenticated/meals/index'
 import { Route as AuthenticatedMealsMealIdRouteImport } from './routes/_authenticated/meals.$mealId'
 
 const LoginRoute = LoginRouteImport.update({
@@ -52,6 +53,11 @@ const AuthenticatedMealsRoute = AuthenticatedMealsRouteImport.update({
   path: '/meals',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMealsIndexRoute = AuthenticatedMealsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedMealsRoute,
+} as any)
 const AuthenticatedMealsMealIdRoute =
   AuthenticatedMealsMealIdRouteImport.update({
     id: '/$mealId',
@@ -67,15 +73,16 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/shopping': typeof AuthenticatedShoppingRoute
   '/meals/$mealId': typeof AuthenticatedMealsMealIdRoute
+  '/meals/': typeof AuthenticatedMealsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/meals': typeof AuthenticatedMealsRouteWithChildren
   '/planner': typeof AuthenticatedPlannerRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shopping': typeof AuthenticatedShoppingRoute
   '/meals/$mealId': typeof AuthenticatedMealsMealIdRoute
+  '/meals': typeof AuthenticatedMealsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,6 +94,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shopping': typeof AuthenticatedShoppingRoute
   '/_authenticated/meals/$mealId': typeof AuthenticatedMealsMealIdRoute
+  '/_authenticated/meals/': typeof AuthenticatedMealsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -98,15 +106,16 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shopping'
     | '/meals/$mealId'
+    | '/meals/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
-    | '/meals'
     | '/planner'
     | '/settings'
     | '/shopping'
     | '/meals/$mealId'
+    | '/meals'
   id:
     | '__root__'
     | '/'
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/shopping'
     | '/_authenticated/meals/$mealId'
+    | '/_authenticated/meals/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMealsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/meals/': {
+      id: '/_authenticated/meals/'
+      path: '/'
+      fullPath: '/meals/'
+      preLoaderRoute: typeof AuthenticatedMealsIndexRouteImport
+      parentRoute: typeof AuthenticatedMealsRoute
+    }
     '/_authenticated/meals/$mealId': {
       id: '/_authenticated/meals/$mealId'
       path: '/$mealId'
@@ -188,10 +205,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedMealsRouteChildren {
   AuthenticatedMealsMealIdRoute: typeof AuthenticatedMealsMealIdRoute
+  AuthenticatedMealsIndexRoute: typeof AuthenticatedMealsIndexRoute
 }
 
 const AuthenticatedMealsRouteChildren: AuthenticatedMealsRouteChildren = {
   AuthenticatedMealsMealIdRoute: AuthenticatedMealsMealIdRoute,
+  AuthenticatedMealsIndexRoute: AuthenticatedMealsIndexRoute,
 }
 
 const AuthenticatedMealsRouteWithChildren =
