@@ -2,32 +2,42 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { useHousehold } from '@/hooks/useHousehold'
+import { useBreakpoint } from '@/hooks/useBreakpoint'
 import { useTranslation } from '@/hooks/useTranslation'
-import { getMealById, updateMealName, deleteIngredient } from '@/lib/meals'
+import {
+  getMealById,
+  updateMealName,
+  deleteIngredient,
+  updateIngredient,
+} from '@/lib/meals'
 import { queryKeys } from '@/lib/queryKeys'
-import { IngredientRow } from './IngredientRow'
-import { IngredientPickerSheet } from './IngredientPickerSheet'
-import type { MealIngredient } from '@/types/meals'
+import { Button } from '@/components/ui/button'
+import { EditableIngredientRow } from './EditableIngredientRow'
+import { InlineIngredientPicker } from './InlineIngredientPicker'
 
 export const MealDetailPage = () => {
   const { t } = useTranslation()
   const { household } = useHousehold()
   const navigate = useNavigate()
+  const { isDesktop } = useBreakpoint()
   const queryClient = useQueryClient()
 
   const { mealId } = useParams({ from: '/_authenticated/meals/$mealId' })
 
-  const [isEditingName, setIsEditingName] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState('')
-  const [isPickerOpen, setIsPickerOpen] = useState(false)
-  const [editingIngredient, setEditingIngredient] = useState<MealIngredient | null>(null)
+  const [showAddPicker, setShowAddPicker] = useState(false)
+  const [deletedIngredients, setDeletedIngredients] = useState<string[]>([])
+  const [updatedQuantities, setUpdatedQuantities] = useState<
+    Record<string, number>
+  >({})
 
-  // Open ingredient picker automatically if navigated here after creating a new meal
   useEffect(() => {
     const storedMealId = sessionStorage.getItem('addIngredient')
     if (storedMealId === mealId) {
       sessionStorage.removeItem('addIngredient')
-      setIsPickerOpen(true)
+      setIsEditing(true)
+      setShowAddPicker(true)
     }
   }, [mealId])
 
@@ -46,7 +56,6 @@ export const MealDetailPage = () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.meals(household?.id ?? ''),
       })
-      setIsEditingName(false)
     },
   })
 
@@ -59,37 +68,65 @@ export const MealDetailPage = () => {
     },
   })
 
+  const updateIngredientMutation = useMutation({
+    mutationFn: ({
+      ingredientId,
+      quantity,
+    }: {
+      ingredientId: string
+      quantity: number
+    }) => updateIngredient(ingredientId, { quantity }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.mealDetail(mealId),
+      })
+    },
+  })
+
   const handleEditName = () => {
     if (!meal) return
     setEditName(meal.name)
-    setIsEditingName(true)
+    setIsEditing(true)
   }
 
-  const handleSaveName = () => {
-    if (!editName.trim()) return
-    updateNameMutation.mutate(editName.trim())
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setEditName('')
+    setDeletedIngredients([])
+    setUpdatedQuantities({})
+    setShowAddPicker(false)
   }
 
-  const handleNameKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSaveName()
-    } else if (e.key === 'Escape') {
-      setIsEditingName(false)
+  const handleSaveChanges = async () => {
+    if (!meal) return
+
+    if (editName.trim() && editName.trim() !== meal.name) {
+      await updateNameMutation.mutateAsync(editName.trim())
     }
+
+    for (const ingredientId of deletedIngredients) {
+      await deleteIngredientMutation.mutateAsync(ingredientId)
+    }
+
+    for (const [ingredientId, quantity] of Object.entries(updatedQuantities)) {
+      await updateIngredientMutation.mutateAsync({
+        ingredientId,
+        quantity,
+      })
+    }
+
+    setIsEditing(false)
+    setDeletedIngredients([])
+    setUpdatedQuantities({})
+    setShowAddPicker(false)
   }
 
   const handleDeleteIngredient = (ingredientId: string) => {
-    deleteIngredientMutation.mutate(ingredientId)
+    setDeletedIngredients((prev) => [...prev, ingredientId])
   }
 
-  const handleAddIngredient = () => {
-    setEditingIngredient(null)
-    setIsPickerOpen(true)
-  }
-
-  const handleEditIngredient = (ingredient: MealIngredient) => {
-    setEditingIngredient(ingredient)
-    setIsPickerOpen(true)
+  const handleUpdateQuantity = (ingredientId: string, quantity: number) => {
+    setUpdatedQuantities((prev) => ({ ...prev, [ingredientId]: quantity }))
   }
 
   if (isLoading) {
@@ -110,44 +147,79 @@ export const MealDetailPage = () => {
     )
   }
 
+  const visibleIngredients = meal.ingredients.filter(
+    (ing) => !deletedIngredients.includes(ing.id),
+  )
+
   return (
     <div className="p-4">
+      {/* Breadcrumb - Desktop only */}
+      {isDesktop && (
+        <nav className="mb-4 text-[13px] text-[var(--color-text-secondary)]">
+          <button
+            onClick={() => navigate({ to: '/meals' })}
+            className="hover:text-[var(--color-accent)]"
+          >
+            {t('nav.meals')}
+          </button>
+          <span className="mx-2">/</span>
+          <span className="text-[var(--color-text-primary)]">{meal.name}</span>
+        </nav>
+      )}
+
       {/* Header */}
       <div className="mb-6 flex items-center gap-[var(--space-3)]">
-        <button
-          onClick={() => navigate({ to: '/meals' })}
-          className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]"
-          aria-label="Back to meals"
-        >
-          <i className="ti ti-arrow-left text-[20px]" />
-        </button>
+        {!isDesktop && (
+          <button
+            onClick={() => navigate({ to: '/meals' })}
+            className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]"
+            aria-label="Back to meals"
+          >
+            <i className="ti ti-arrow-left text-[20px]" />
+          </button>
+        )}
 
         <div className="min-w-0 flex-1">
-          {isEditingName ? (
+          {isEditing && !isDesktop ? (
             <input
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              onKeyDown={handleNameKeyDown}
-              onBlur={handleSaveName}
               className="w-full rounded-[var(--radius-md)] border-[1.5px] border-[var(--color-accent)] bg-[var(--color-bg-primary)] px-3 py-2 text-[22px] font-medium text-[var(--color-text-primary)] outline-none"
               autoFocus
             />
           ) : (
             <h1 className="truncate text-[22px] font-medium text-[var(--color-text-primary)]">
-              {meal.name}
+              {isEditing && editName ? editName : meal.name}
             </h1>
           )}
         </div>
 
-        {!isEditingName && (
-          <button
-            onClick={handleEditName}
-            className="shrink-0 text-[13px] font-medium text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]"
-          >
-            {t('meals.editName')}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {isEditing ? (
+            <>
+              {isDesktop && (
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-48 rounded-[var(--radius-md)] border-[1.5px] border-[var(--color-accent)] bg-[var(--color-bg-primary)] px-3 py-2 text-[14px] text-[var(--color-text-primary)] outline-none"
+                  autoFocus
+                />
+              )}
+              <Button variant="ghost" onClick={handleCancelEdit}>
+                {t('meals.cancelButton')}
+              </Button>
+              <Button variant="primary" onClick={handleSaveChanges}>
+                {t('meals.doneButton')}
+              </Button>
+            </>
+          ) : (
+            <Button variant="secondary" onClick={handleEditName}>
+              {t('meals.editButton')}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Ingredients section */}
@@ -157,7 +229,7 @@ export const MealDetailPage = () => {
         </p>
       </div>
 
-      {meal.ingredients.length === 0 ? (
+      {meal.ingredients.length === 0 && !isEditing ? (
         <div className="py-12 text-center">
           <i className="ti ti-package mb-3 text-[40px] text-[var(--color-text-tertiary)]" />
           <p className="text-[13px] text-[var(--color-text-secondary)]">
@@ -166,33 +238,44 @@ export const MealDetailPage = () => {
         </div>
       ) : (
         <div className="mb-4">
-          {meal.ingredients.map((ingredient) => (
-            <IngredientRow
+          {visibleIngredients.map((ingredient) => (
+            <EditableIngredientRow
               key={ingredient.id}
-              ingredient={ingredient}
-              onEdit={handleEditIngredient}
+              ingredient={{
+                ...ingredient,
+                quantity: updatedQuantities[ingredient.id] ?? ingredient.quantity,
+              }}
+              isEditing={isEditing}
+              onUpdateQuantity={handleUpdateQuantity}
               onDelete={handleDeleteIngredient}
             />
           ))}
         </div>
       )}
 
-      {/* Add ingredient button */}
-      <button
-        onClick={handleAddIngredient}
-        className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-lg)] border-[0.5px] border-dashed border-[var(--color-border-default)] py-3 text-[14px] font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]"
-      >
-        <i className="ti ti-plus text-[18px]" />
-        {t('meals.addIngredient')}
-      </button>
-
-      {/* Ingredient picker sheet */}
-      <IngredientPickerSheet
-        open={isPickerOpen}
-        onOpenChange={setIsPickerOpen}
-        mealId={mealId}
-        editingIngredient={editingIngredient}
-      />
+      {/* Add ingredient section */}
+      {isEditing && (
+        <div className="mt-4">
+          {showAddPicker ? (
+            <div className="rounded-[var(--radius-lg)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-3">
+              <InlineIngredientPicker
+                mealId={mealId}
+                onAdded={() => {
+                  setShowAddPicker(false)
+                }}
+              />
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowAddPicker(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-lg)] border-[0.5px] border-dashed border-[var(--color-border-default)] py-3 text-[14px] font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]"
+            >
+              <i className="ti ti-plus text-[18px]" />
+              {t('meals.addIngredient')}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -150,7 +150,10 @@
     "wizardNoMatches": "No hay coincidencias para \"{query}\"",
     "wizardAddAsNew": "Agregar \"{name}\" como ingrediente nuevo",
     "wizardUnitInfo": "Unidad: {unit} — ingresa la cantidad.",
-    "wizardNewIngredientSubtitle": "Completa los datos. La categoría se detecta automáticamente."
+    "wizardNewIngredientSubtitle": "Completa los datos. La categoría se detecta automáticamente.",
+    "editButton": "Editar",
+    "doneButton": "Listo",
+    "updateButton": "Actualizar"
   },
   "time": {
     "justNow": "ahora mismo",

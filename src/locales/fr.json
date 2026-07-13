@@ -150,7 +150,10 @@
     "wizardNoMatches": "Aucune correspondance pour \"{query}\"",
     "wizardAddAsNew": "Ajouter \"{name}\" comme nouvel ingrédient",
     "wizardUnitInfo": "Unité : {unit} — saisissez la quantité.",
-    "wizardNewIngredientSubtitle": "Remplissez les détails. La catégorie est détectée automatiquement."
+    "wizardNewIngredientSubtitle": "Remplissez les détails. La catégorie est détectée automatiquement.",
+    "editButton": "Modifier",
+    "doneButton": "Terminé",
+    "updateButton": "Mettre à jour"
   },
   "time": {
     "justNow": "à l'instant",

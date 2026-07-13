@@ -150,7 +150,10 @@
     "wizardNoMatches": "No matches for \"{query}\"",
     "wizardAddAsNew": "Add \"{name}\" as new ingredient",
     "wizardUnitInfo": "Unit: {unit} — enter the quantity.",
-    "wizardNewIngredientSubtitle": "Fill in the details. Category is auto-detected."
+    "wizardNewIngredientSubtitle": "Fill in the details. Category is auto-detected.",
+    "editButton": "Edit",
+    "doneButton": "Done",
+    "updateButton": "Update"
   },
   "time": {
     "justNow": "just now",
