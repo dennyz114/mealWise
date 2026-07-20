@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import { useBreakpoint } from '@/hooks/useBreakpoint'
 import { useTranslation } from '@/hooks/useTranslation'
 import { CategoryBadge } from './CategoryBadge'
 import { QtyEditBottomSheet } from './QtyEditBottomSheet'
-import { QtyEditPopover } from './QtyEditPopover'
 import type { MealIngredient, IngredientCategory } from '@/types/meals'
 
 type EditableIngredientRowProps = {
@@ -20,26 +18,15 @@ export const EditableIngredientRow = ({
   onDelete,
 }: EditableIngredientRowProps) => {
   const { t } = useTranslation()
-  const { isDesktop } = useBreakpoint()
   const [isQtySheetOpen, setIsQtySheetOpen] = useState(false)
-  const [showPopover, setShowPopover] = useState(false)
 
   const handleQtyClick = () => {
-    if (isDesktop) {
-      setShowPopover(!showPopover)
-    } else {
-      setIsQtySheetOpen(true)
-    }
+    setIsQtySheetOpen(true)
   }
 
   const handleUpdateQuantity = (quantity: number) => {
     onUpdateQuantity(ingredient.id, quantity)
     setIsQtySheetOpen(false)
-    setShowPopover(false)
-  }
-
-  const handleCancelPopover = () => {
-    setShowPopover(false)
   }
 
   if (!isEditing) {
@@ -74,16 +61,9 @@ export const EditableIngredientRow = ({
             </span>
             <button
               onClick={handleQtyClick}
-              className="relative rounded-[var(--radius-sm)] bg-[var(--color-bg-secondary)] px-2 py-0.5 text-[13px] text-[var(--color-text-primary)] hover:bg-[var(--color-accent-subtle)]"
+              className="rounded-[var(--radius-sm)] bg-[var(--color-bg-secondary)] px-2 py-0.5 text-[13px] text-[var(--color-text-primary)] hover:bg-[var(--color-accent-subtle)]"
             >
               {ingredient.quantity} {t(`units.${ingredient.unit}`)}
-              {showPopover && isDesktop && (
-                <QtyEditPopover
-                  ingredient={ingredient}
-                  onUpdate={handleUpdateQuantity}
-                  onCancel={handleCancelPopover}
-                />
-              )}
             </button>
           </div>
           <div className="mt-1">
