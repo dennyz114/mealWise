@@ -19,20 +19,23 @@ BEGIN;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 
-DROP FUNCTION IF EXISTS public.join_household_by_code(text);
-DROP FUNCTION IF EXISTS public.create_household(text, text);
-DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
-DROP FUNCTION IF EXISTS public.is_household_member(uuid);
-DROP FUNCTION IF EXISTS public.is_household_owner(uuid);
-
+-- Drop tables first so RLS policies no longer depend on helper functions
 DROP TABLE IF EXISTS public.shopping_list_items CASCADE;
 DROP TABLE IF EXISTS public.menu_days CASCADE;
 DROP TABLE IF EXISTS public.weekly_menus CASCADE;
 DROP TABLE IF EXISTS public.meal_ingredients CASCADE;
+DROP TABLE IF EXISTS public.ingredient_library CASCADE;
 DROP TABLE IF EXISTS public.meals CASCADE;
 DROP TABLE IF EXISTS public.household_members CASCADE;
 DROP TABLE IF EXISTS public.households CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
+
+DROP FUNCTION IF EXISTS public.join_household_by_code(text) CASCADE;
+DROP FUNCTION IF EXISTS public.create_household(text, text) CASCADE;
+DROP FUNCTION IF EXISTS public.create_meal(uuid, text, text) CASCADE;
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.is_household_member(uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.is_household_owner(uuid) CASCADE;
 
 -- ---------------------------------------------------------------------------
 -- 2. Tables
@@ -74,15 +77,30 @@ CREATE TABLE public.meals (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Household-scoped ingredient catalog (canonical name / unit / category)
+CREATE TABLE public.ingredient_library (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  household_id uuid NOT NULL REFERENCES public.households (id) ON DELETE CASCADE,
+  name text NOT NULL,
+  unit text NOT NULL,
+  category text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT ingredient_library_household_name_key UNIQUE (household_id, name)
+);
+
+-- Meal ↔ library ingredient (quantity lives on the link)
 CREATE TABLE public.meal_ingredients (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   meal_id uuid NOT NULL REFERENCES public.meals (id) ON DELETE CASCADE,
-  name text NOT NULL,
-  quantity numeric,
-  unit text,
-  category text,
-  created_at timestamptz NOT NULL DEFAULT now()
+  ingredient_id uuid NOT NULL REFERENCES public.ingredient_library (id) ON DELETE RESTRICT,
+  quantity numeric NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT meal_ingredients_meal_ingredient_key UNIQUE (meal_id, ingredient_id)
 );
+
+CREATE INDEX idx_ingredient_library_household ON public.ingredient_library (household_id);
+CREATE INDEX idx_meal_ingredients_meal ON public.meal_ingredients (meal_id);
+CREATE INDEX idx_meal_ingredients_ingredient ON public.meal_ingredients (ingredient_id);
 
 CREATE TABLE public.weekly_menus (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -122,6 +140,7 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = public
+SET row_security = off
 AS $$
   SELECT EXISTS (
     SELECT 1
@@ -137,6 +156,7 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = public
+SET row_security = off
 AS $$
   SELECT EXISTS (
     SELECT 1
@@ -245,6 +265,53 @@ $$;
 REVOKE ALL ON FUNCTION public.join_household_by_code(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.join_household_by_code(text) TO authenticated;
 
+CREATE OR REPLACE FUNCTION public.create_meal(
+  p_household_id uuid,
+  p_name text,
+  p_icon text DEFAULT 'ti-soup'
+)
+RETURNS public.meals
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off
+AS $$
+DECLARE
+  m public.meals%ROWTYPE;
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.household_members
+    WHERE household_id = p_household_id
+      AND user_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Not a household member';
+  END IF;
+
+  IF p_name IS NULL OR length(trim(p_name)) = 0 THEN
+    RAISE EXCEPTION 'Meal name is required';
+  END IF;
+
+  INSERT INTO public.meals (household_id, name, icon, created_by)
+  VALUES (
+    p_household_id,
+    trim(p_name),
+    COALESCE(NULLIF(trim(p_icon), ''), 'ti-soup'),
+    auth.uid()
+  )
+  RETURNING * INTO m;
+
+  RETURN m;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.create_meal(uuid, text, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.create_meal(uuid, text, text) TO authenticated;
+
 GRANT EXECUTE ON FUNCTION public.is_household_member(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.is_household_owner(uuid) TO authenticated;
 
@@ -256,6 +323,7 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.households ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.household_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.meals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ingredient_library ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.meal_ingredients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.weekly_menus ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.menu_days ENABLE ROW LEVEL SECURITY;
@@ -316,6 +384,11 @@ CREATE POLICY household_members_delete_owner_or_self
 -- meals (+ ingredients): household members
 CREATE POLICY meals_all_member
   ON public.meals FOR ALL TO authenticated
+  USING (public.is_household_member(household_id))
+  WITH CHECK (public.is_household_member(household_id));
+
+CREATE POLICY ingredient_library_all_member
+  ON public.ingredient_library FOR ALL TO authenticated
   USING (public.is_household_member(household_id))
   WITH CHECK (public.is_household_member(household_id));
 

@@ -110,6 +110,7 @@ export const IngredientPickerStep = ({
       unit: addingLibraryItem.unit as IngredientUnit,
       category: addingLibraryItem.category,
       isExisting: true,
+      libraryIngredientId: addingLibraryItem.id,
     }
     onAddIngredient(newIngredient)
     setAddingLibraryItem(null)

@@ -65,18 +65,31 @@ A meal belongs to a household and can be reused across weekly menus.
 
 ---
 
+### `ingredient_library`
+Household-scoped catalog of ingredients. Canonical name, unit, and category live here.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid | PK |
+| `household_id` | uuid | References `households.id` |
+| `name` | text | Unique per household |
+| `unit` | text | Default unit for this ingredient |
+| `category` | text | e.g. `vegetables`, `proteins`, `pantry` |
+| `created_at` | timestamptz | |
+
+---
+
 ### `meal_ingredients`
-Ingredients that belong to a meal.
+Many-to-many link between meals and library ingredients. Quantity is per meal.
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | uuid | PK |
 | `meal_id` | uuid | References `meals.id` |
-| `name` | text | |
-| `quantity` | numeric | |
-| `unit` | text | e.g. `g`, `ml`, `units` |
-| `category` | text | e.g. `dairy`, `produce`, `meat` |
+| `ingredient_id` | uuid | References `ingredient_library.id` |
+| `quantity` | numeric | Amount used in this meal |
 | `created_at` | timestamptz | |
+| | | Unique `(meal_id, ingredient_id)` |
 
 ---
 
@@ -142,7 +155,9 @@ households
         └── shopping_list_items (1:N)
 
 meals
-  └── meal_ingredients (1:N)
+  ├── meal_ingredients (N:M via link table)
+  │     └── ingredient_library
+  └── (reused by menu_days)
 ```
 
 ---

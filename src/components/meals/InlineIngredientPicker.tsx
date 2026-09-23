@@ -69,6 +69,7 @@ export const InlineIngredientPicker = ({
       quantity: number
       unit: string
       category: string
+      libraryIngredientId?: string
     }) => {
       await addIngredient(mealId, data)
     },
@@ -121,6 +122,7 @@ export const InlineIngredientPicker = ({
       quantity,
       unit: addingLibraryItem.unit,
       category: addingLibraryItem.category,
+      libraryIngredientId: addingLibraryItem.id,
     })
   }
 

@@ -5,6 +5,7 @@ import type {
   MealIngredient,
   LibraryIngredient,
   TemporaryIngredient,
+  IngredientCategory,
 } from '@/types/meals'
 
 const MEAL_ICONS = [
@@ -39,23 +40,94 @@ const mapMeal = (row: {
   updatedAt: row.updated_at,
 })
 
-const mapIngredient = (row: {
+type MealIngredientRow = {
   id: string
   meal_id: string
-  name: string
+  ingredient_id: string
   quantity: number
-  unit: string
-  category: string
   created_at: string
-}): MealIngredient => ({
-  id: row.id,
-  mealId: row.meal_id,
-  name: row.name,
-  quantity: row.quantity,
-  unit: row.unit,
-  category: row.category,
-  createdAt: row.created_at,
-})
+  ingredient:
+    | {
+        id: string
+        name: string
+        unit: string
+        category: string
+      }
+    | {
+        id: string
+        name: string
+        unit: string
+        category: string
+      }[]
+    | null
+}
+
+const unwrapIngredient = (row: MealIngredientRow) => {
+  const linked = Array.isArray(row.ingredient)
+    ? (row.ingredient[0] ?? null)
+    : row.ingredient
+
+  if (!linked) {
+    throw new Error('Meal ingredient is missing library data')
+  }
+
+  return linked
+}
+
+const mapMealIngredient = (row: MealIngredientRow): MealIngredient => {
+  const linked = unwrapIngredient(row)
+
+  return {
+    id: row.id,
+    mealId: row.meal_id,
+    ingredientId: row.ingredient_id,
+    name: linked.name,
+    quantity: Number(row.quantity),
+    unit: linked.unit,
+    category: linked.category,
+    createdAt: row.created_at,
+  }
+}
+
+const MEAL_INGREDIENT_SELECT =
+  'id, meal_id, ingredient_id, quantity, created_at, ingredient:ingredient_library(id, name, unit, category)'
+
+const upsertLibraryIngredient = async (
+  householdId: string,
+  ingredient: { name: string; unit: string; category: string },
+): Promise<{ id: string; name: string; unit: string; category: string }> => {
+  const { data, error } = await supabase
+    .from('ingredient_library')
+    .upsert(
+      {
+        household_id: householdId,
+        name: ingredient.name.trim(),
+        unit: ingredient.unit,
+        category: ingredient.category,
+      },
+      { onConflict: 'household_id,name' },
+    )
+    .select('id, name, unit, category')
+    .single()
+
+  if (error) throw error
+  if (!data) throw new Error('Failed to upsert ingredient library item')
+
+  return data
+}
+
+const getMealHouseholdId = async (mealId: string): Promise<string> => {
+  const { data, error } = await supabase
+    .from('meals')
+    .select('household_id')
+    .eq('id', mealId)
+    .single()
+
+  if (error) throw error
+  if (!data) throw new Error('Meal not found')
+
+  return data.household_id
+}
 
 export const getMeals = async (householdId: string): Promise<Meal[]> => {
   const { data, error } = await supabase
@@ -69,7 +141,9 @@ export const getMeals = async (householdId: string): Promise<Meal[]> => {
   return data.map(mapMeal)
 }
 
-export const getMealById = async (mealId: string): Promise<MealWithIngredients> => {
+export const getMealById = async (
+  mealId: string,
+): Promise<MealWithIngredients> => {
   const { data: meal, error: mealError } = await supabase
     .from('meals')
     .select('id, household_id, name, icon, created_by, created_at, updated_at')
@@ -81,34 +155,31 @@ export const getMealById = async (mealId: string): Promise<MealWithIngredients> 
 
   const { data: ingredients, error: ingredientsError } = await supabase
     .from('meal_ingredients')
-    .select('id, meal_id, name, quantity, unit, category, created_at')
+    .select(MEAL_INGREDIENT_SELECT)
     .eq('meal_id', mealId)
 
   if (ingredientsError) throw ingredientsError
 
   return {
     ...mapMeal(meal),
-    ingredients: (ingredients ?? []).map(mapIngredient),
+    ingredients: (ingredients ?? []).map((row) =>
+      mapMealIngredient(row as MealIngredientRow),
+    ),
   }
 }
 
 export const createMeal = async (
   householdId: string,
   name: string,
-  userId: string,
+  _userId: string,
 ): Promise<Meal> => {
   const icon = getRandomIcon()
 
-  const { data, error } = await supabase
-    .from('meals')
-    .insert({
-      household_id: householdId,
-      name,
-      icon,
-      created_by: userId,
-    })
-    .select('id, household_id, name, icon, created_by, created_at, updated_at')
-    .single()
+  const { data, error } = await supabase.rpc('create_meal', {
+    p_household_id: householdId,
+    p_name: name,
+    p_icon: icon,
+  })
 
   if (error) throw error
   if (!data) throw new Error('Failed to create meal')
@@ -122,59 +193,46 @@ export const createMealWithIngredients = async (
   userId: string,
   ingredients: TemporaryIngredient[],
 ): Promise<MealWithIngredients> => {
-  const icon = getRandomIcon()
-
-  const { data: meal, error: mealError } = await supabase
-    .from('meals')
-    .insert({
-      household_id: householdId,
-      name,
-      icon,
-      created_by: userId,
-    })
-    .select('id, household_id, name, icon, created_by, created_at, updated_at')
-    .single()
-
-  if (mealError) throw mealError
-  if (!meal) throw new Error('Failed to create meal')
+  const meal = await createMeal(householdId, name, userId)
 
   if (ingredients.length === 0) {
-    return { ...mapMeal(meal), ingredients: [] }
+    return { ...meal, ingredients: [] }
   }
 
-  const ingredientInserts = ingredients.map((ing) => ({
-    meal_id: meal.id,
-    name: ing.name,
-    quantity: ing.quantity,
-    unit: ing.unit,
-    category: ing.category,
-  }))
+  const libraryIds: string[] = []
 
-  const { data: insertedIngredients, error: ingredientsError } = await supabase
-    .from('meal_ingredients')
-    .insert(ingredientInserts)
-    .select('id, meal_id, name, quantity, unit, category, created_at')
+  for (const ing of ingredients) {
+    if (ing.libraryIngredientId) {
+      libraryIds.push(ing.libraryIngredientId)
+      continue
+    }
 
-  if (ingredientsError) throw ingredientsError
-
-  // Add new ingredients to the library
-  const newIngredients = ingredients.filter((ing) => !ing.isExisting)
-  if (newIngredients.length > 0) {
-    const libraryInserts = newIngredients.map((ing) => ({
-      household_id: householdId,
+    const libraryItem = await upsertLibraryIngredient(householdId, {
       name: ing.name,
       unit: ing.unit,
       category: ing.category,
-    }))
-
-    await supabase
-      .from('ingredient_library')
-      .upsert(libraryInserts, { onConflict: 'household_id,name' })
+    })
+    libraryIds.push(libraryItem.id)
   }
 
+  const linkInserts = ingredients.map((ing, index) => ({
+    meal_id: meal.id,
+    ingredient_id: libraryIds[index],
+    quantity: ing.quantity,
+  }))
+
+  const { data: insertedLinks, error: linksError } = await supabase
+    .from('meal_ingredients')
+    .insert(linkInserts)
+    .select(MEAL_INGREDIENT_SELECT)
+
+  if (linksError) throw linksError
+
   return {
-    ...mapMeal(meal),
-    ingredients: (insertedIngredients ?? []).map(mapIngredient),
+    ...meal,
+    ingredients: (insertedLinks ?? []).map((row) =>
+      mapMealIngredient(row as MealIngredientRow),
+    ),
   }
 }
 
@@ -196,7 +254,7 @@ export const deleteMeal = async (mealId: string): Promise<void> => {
   if (error) throw error
 }
 
-const updateMealTimestamp = async (mealId: string): Promise<void> => {
+const touchMeal = async (mealId: string): Promise<void> => {
   const { error } = await supabase
     .from('meals')
     .update({ updated_at: new Date().toISOString() })
@@ -207,30 +265,40 @@ const updateMealTimestamp = async (mealId: string): Promise<void> => {
 
 export const addIngredient = async (
   mealId: string,
-  ingredient: { name: string; quantity: number; unit: string; category: string },
+  ingredient: {
+    name: string
+    quantity: number
+    unit: string
+    category: string
+    libraryIngredientId?: string
+  },
 ): Promise<MealIngredient> => {
+  const householdId = await getMealHouseholdId(mealId)
+
+  const libraryItem = ingredient.libraryIngredientId
+    ? { id: ingredient.libraryIngredientId }
+    : await upsertLibraryIngredient(householdId, ingredient)
+
   const { data, error } = await supabase
     .from('meal_ingredients')
     .insert({
       meal_id: mealId,
-      name: ingredient.name,
+      ingredient_id: libraryItem.id,
       quantity: ingredient.quantity,
-      unit: ingredient.unit,
-      category: ingredient.category,
     })
-    .select('id, meal_id, name, quantity, unit, category, created_at')
+    .select(MEAL_INGREDIENT_SELECT)
     .single()
 
   if (error) throw error
   if (!data) throw new Error('Failed to add ingredient')
 
-  await updateMealTimestamp(mealId)
+  await touchMeal(mealId)
 
-  return mapIngredient(data)
+  return mapMealIngredient(data as MealIngredientRow)
 }
 
 export const updateIngredient = async (
-  ingredientId: string,
+  mealIngredientId: string,
   updates: Partial<{
     name: string
     quantity: number
@@ -238,33 +306,49 @@ export const updateIngredient = async (
     category: string
   }>,
 ): Promise<void> => {
-  // Get the meal_id first to update the parent meal's timestamp
-  const { data: ingredient, error: fetchError } = await supabase
+  const { data: link, error: fetchError } = await supabase
     .from('meal_ingredients')
-    .select('meal_id')
-    .eq('id', ingredientId)
+    .select('id, meal_id, ingredient_id')
+    .eq('id', mealIngredientId)
     .single()
 
   if (fetchError) throw fetchError
+  if (!link) throw new Error('Ingredient link not found')
 
-  const { error } = await supabase
-    .from('meal_ingredients')
-    .update(updates)
-    .eq('id', ingredientId)
+  if (updates.quantity !== undefined) {
+    const { error } = await supabase
+      .from('meal_ingredients')
+      .update({ quantity: updates.quantity })
+      .eq('id', mealIngredientId)
 
-  if (error) throw error
-
-  if (ingredient) {
-    await updateMealTimestamp(ingredient.meal_id)
+    if (error) throw error
   }
+
+  const libraryUpdates: Partial<{ name: string; unit: string; category: string }> =
+    {}
+  if (updates.name !== undefined) libraryUpdates.name = updates.name.trim()
+  if (updates.unit !== undefined) libraryUpdates.unit = updates.unit
+  if (updates.category !== undefined) libraryUpdates.category = updates.category
+
+  if (Object.keys(libraryUpdates).length > 0) {
+    const { error } = await supabase
+      .from('ingredient_library')
+      .update(libraryUpdates)
+      .eq('id', link.ingredient_id)
+
+    if (error) throw error
+  }
+
+  await touchMeal(link.meal_id)
 }
 
-export const deleteIngredient = async (ingredientId: string): Promise<void> => {
-  // Get the meal_id first to update the parent meal's timestamp
-  const { data: ingredient, error: fetchError } = await supabase
+export const deleteIngredient = async (
+  mealIngredientId: string,
+): Promise<void> => {
+  const { data: link, error: fetchError } = await supabase
     .from('meal_ingredients')
     .select('meal_id')
-    .eq('id', ingredientId)
+    .eq('id', mealIngredientId)
     .single()
 
   if (fetchError) throw fetchError
@@ -272,36 +356,46 @@ export const deleteIngredient = async (ingredientId: string): Promise<void> => {
   const { error } = await supabase
     .from('meal_ingredients')
     .delete()
-    .eq('id', ingredientId)
+    .eq('id', mealIngredientId)
 
   if (error) throw error
 
-  if (ingredient) {
-    await updateMealTimestamp(ingredient.meal_id)
+  if (link) {
+    await touchMeal(link.meal_id)
   }
 }
 
 export const getMealIngredientCounts = async (
   householdId: string,
 ): Promise<Record<string, number>> => {
-  const [mealsResult, ingredientsResult] = await Promise.all([
-    supabase.from('meals').select('id').eq('household_id', householdId),
-    supabase.from('meal_ingredients').select('meal_id'),
-  ])
+  const { data: meals, error: mealsError } = await supabase
+    .from('meals')
+    .select('id')
+    .eq('household_id', householdId)
 
-  if (mealsResult.error) throw mealsResult.error
-  if (ingredientsResult.error) throw ingredientsResult.error
+  if (mealsError) throw mealsError
 
+  const mealIds = (meals ?? []).map((meal) => meal.id)
   const counts: Record<string, number> = {}
-  for (const meal of mealsResult.data ?? []) {
-    counts[meal.id] = 0
+  for (const mealId of mealIds) {
+    counts[mealId] = 0
   }
-  for (const ing of ingredientsResult.data ?? []) {
-    const mealId = ing.meal_id
-    if (mealId && counts[mealId] !== undefined) {
-      counts[mealId]++
+
+  if (mealIds.length === 0) return counts
+
+  const { data: links, error: linksError } = await supabase
+    .from('meal_ingredients')
+    .select('meal_id')
+    .in('meal_id', mealIds)
+
+  if (linksError) throw linksError
+
+  for (const link of links ?? []) {
+    if (counts[link.meal_id] !== undefined) {
+      counts[link.meal_id]++
     }
   }
+
   return counts
 }
 
@@ -310,34 +404,30 @@ export const getIngredientLibrary = async (
 ): Promise<LibraryIngredient[]> => {
   const { data, error } = await supabase
     .from('ingredient_library')
-    .select('name, unit, category')
+    .select('id, name, unit, category')
     .eq('household_id', householdId)
     .order('name')
 
   if (error) throw error
 
   return (data ?? []).map((row) => ({
+    id: row.id,
     name: row.name,
     unit: row.unit,
-    category: row.category,
+    category: row.category as IngredientCategory,
   }))
 }
 
 export const addToIngredientLibrary = async (
   householdId: string,
   ingredient: { name: string; unit: string; category: string },
-): Promise<void> => {
-  const { error } = await supabase
-    .from('ingredient_library')
-    .upsert(
-      {
-        household_id: householdId,
-        name: ingredient.name,
-        unit: ingredient.unit,
-        category: ingredient.category,
-      },
-      { onConflict: 'household_id,name' },
-    )
+): Promise<LibraryIngredient> => {
+  const row = await upsertLibraryIngredient(householdId, ingredient)
 
-  if (error) throw error
+  return {
+    id: row.id,
+    name: row.name,
+    unit: row.unit,
+    category: row.category as IngredientCategory,
+  }
 }

@@ -48,6 +48,7 @@ export const IngredientPickerSheet = ({
       quantity: number
       unit: string
       category: string
+      libraryIngredientId?: string
     }) => {
       if (editingIngredient) {
         await updateIngredient(editingIngredient.id, data)
@@ -85,6 +86,7 @@ export const IngredientPickerSheet = ({
       quantity: quantityNum,
       unit: addingItem.unit,
       category: addingItem.category,
+      libraryIngredientId: addingItem.id,
     })
   }
 
