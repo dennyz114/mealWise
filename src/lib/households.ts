@@ -57,42 +57,26 @@ export const getHouseholdByUserId = async (
 /**
  * Creates a new household and adds the creator as the 'owner' member.
  *
- * Performs two sequential writes in a transaction-like manner:
- * 1. Inserts into the households table
- * 2. Inserts into the household_members table with role 'owner'
+ * Uses a SECURITY DEFINER RPC so household + membership are created
+ * atomically without RLS INSERT/RETURNING ordering issues.
  *
  * @param name - The household name
  * @param joinCode - The join code (generated client-side, must be unique)
- * @param userId - The authenticated user creating the household
+ * @param _userId - Unused; creator uses auth.uid() in the RPC
  * @returns The created household
  */
 export const createHousehold = async (
   name: string,
   joinCode: string,
-  userId: string,
+  _userId: string,
 ): Promise<Household> => {
-  // 1. Insert the household
-  const { data: household, error: householdError } = await supabase
-    .from('households')
-    .insert({
-      name,
-      join_code: joinCode,
-      created_by: userId,
-    })
-    .select()
-    .single()
-
-  if (householdError) throw householdError
-  if (!household) throw new Error('Failed to create household')
-
-  // 2. Add the creator as the owner member
-  const { error: memberError } = await supabase.from('household_members').insert({
-    household_id: household.id,
-    user_id: userId,
-    role: 'owner',
+  const { data: household, error } = await supabase.rpc('create_household', {
+    p_name: name,
+    p_join_code: joinCode,
   })
 
-  if (memberError) throw memberError
+  if (error) throw error
+  if (!household) throw new Error('Failed to create household')
 
   return mapHousehold(household)
 }
@@ -100,36 +84,23 @@ export const createHousehold = async (
 /**
  * Joins an existing household using a valid join code.
  *
- * Looks up the household by its join_code, then inserts a membership
- * with role 'member'. Throws an error if the join code is invalid
- * or the user is already a member.
+ * Uses a SECURITY DEFINER RPC so the lookup works under RLS
+ * (non-members cannot SELECT households by join_code directly).
  *
  * @param joinCode - The household's join code (e.g. "XK4-92T")
- * @param userId - The authenticated user's ID
+ * @param _userId - Unused; membership uses auth.uid() in the RPC
  * @returns The joined household
  */
 export const joinHousehold = async (
   joinCode: string,
-  userId: string,
+  _userId: string,
 ): Promise<Household> => {
-  // 1. Find the household by join code
-  const { data: household, error: lookupError } = await supabase
-    .from('households')
-    .select('id, name, join_code, created_by, created_at')
-    .eq('join_code', joinCode)
-    .single()
-
-  if (lookupError) throw lookupError
-  if (!household) throw new Error('Invalid join code. Please check and try again.')
-
-  // 2. Insert the membership
-  const { error: memberError } = await supabase.from('household_members').insert({
-    household_id: household.id,
-    user_id: userId,
-    role: 'member',
+  const { data: household, error } = await supabase.rpc('join_household_by_code', {
+    p_join_code: joinCode,
   })
 
-  if (memberError) throw memberError
+  if (error) throw error
+  if (!household) throw new Error('Invalid join code. Please check and try again.')
 
   return mapHousehold(household)
 }
@@ -197,13 +168,8 @@ export const deleteHousehold = async (
   if (memberError) throw memberError
   if (member?.role !== 'owner') throw new Error('Only the owner can close the household')
 
-  const { error: deleteMembersError } = await supabase
-    .from('household_members')
-    .delete()
-    .eq('household_id', householdId)
-
-  if (deleteMembersError) throw deleteMembersError
-
+  // Cascade deletes members (and related rows) via FK ON DELETE CASCADE.
+  // Deleting members first would remove ownership and fail household DELETE RLS.
   const { error: deleteHouseholdError } = await supabase
     .from('households')
     .delete()

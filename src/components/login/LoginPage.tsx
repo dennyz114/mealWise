@@ -1,24 +1,29 @@
 import { useState } from 'react'
 import { Calendar, Lock, ShoppingCart, Utensils } from 'lucide-react'
-import { signInWithGoogle } from '@/lib/auth'
-import { GoogleButton } from './GoogleButton'
 import { FeatureHighlight } from './FeatureHighlight'
+import { LoginForm } from './LoginForm'
+import { RegisterForm } from './RegisterForm'
 import { Footer } from '@/components/Footer'
 
-type LoginPageProps = {
-  onError?: (message: string) => void
-}
+type AuthMode = 'login' | 'register'
 
-export const LoginPage = ({ onError }: LoginPageProps) => {
-  const [isLoading, setIsLoading] = useState(false)
+export const LoginPage = () => {
+  const [mode, setMode] = useState<AuthMode>('login')
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const isLogin = mode === 'login'
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true)
-    const { error } = await signInWithGoogle()
-    if (error) {
-      onError?.(error.message)
-      setIsLoading(false)
-    }
+  const switchToRegister = () => {
+    setSuccessMessage(null)
+    setMode('register')
+  }
+
+  const switchToLogin = () => {
+    setMode('login')
+  }
+
+  const handleRegistered = (message: string) => {
+    setSuccessMessage(message)
+    setMode('login')
   }
 
   return (
@@ -71,20 +76,29 @@ export const LoginPage = ({ onError }: LoginPageProps) => {
         {/* Right panel / Mobile form */}
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 md:bg-[var(--color-bg-primary)]">
           <div className="w-full max-w-sm">
-            {/* Desktop header */}
-            <div className="mb-8 hidden text-center md:block">
+            <div className="mb-8 text-center">
               <h2 className="mb-1 text-[22px] font-medium text-[var(--color-text-primary)]">
-                Welcome back
+                {isLogin ? 'Welcome back' : 'Create your account'}
               </h2>
               <p className="text-[14px] text-[var(--color-text-secondary)]">
-                Sign in to your account
+                {isLogin ? 'Sign in to your account' : 'Join MealWise to plan your meals'}
               </p>
             </div>
 
-            {/* Mobile features */}
-            <div className="mb-8 flex flex-col gap-4 md:hidden">
-              <GoogleButton onClick={handleGoogleSignIn} isLoading={isLoading} />
+            {isLogin ? (
+              <LoginForm
+                onSwitchToRegister={switchToRegister}
+                successMessage={successMessage}
+              />
+            ) : (
+              <RegisterForm
+                onSwitchToLogin={switchToLogin}
+                onRegistered={handleRegistered}
+              />
+            )}
 
+            {/* Mobile features */}
+            <div className="mt-8 flex flex-col gap-4 md:hidden">
               <p className="text-center text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--color-text-tertiary)]">
                 what you get
               </p>
@@ -106,14 +120,9 @@ export const LoginPage = ({ onError }: LoginPageProps) => {
               />
             </div>
 
-            {/* Desktop form */}
-            <div className="hidden md:block">
-              <GoogleButton onClick={handleGoogleSignIn} isLoading={isLoading} />
-            </div>
-
             <div className="mt-6 flex items-center gap-2 text-[13px] text-[var(--color-text-secondary)]">
               <Lock className="size-4" />
-              <span>Secured by Google OAuth 2.0</span>
+              <span>Secured by Supabase Auth</span>
             </div>
 
             {/* Desktop divider + terms */}

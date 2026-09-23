@@ -26,15 +26,7 @@ export const Sidebar = ({ household }: SidebarProps) => {
       className="hidden flex-shrink-0 flex-col border-r border-[var(--color-border-default)] bg-[var(--color-bg-primary)] transition-[width] duration-200 md:flex"
       style={{ width }}
     >
-      <button
-        onClick={toggle}
-        className="flex h-12 items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-        aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
-      >
-        <i className={`ti ti-chevron-${isExpanded ? 'left' : 'right'} text-lg`} />
-      </button>
-
-      <nav className="flex flex-col gap-1 px-2">
+      <nav className="flex flex-1 flex-col gap-1 px-2 pt-2">
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.path}
@@ -46,7 +38,8 @@ export const Sidebar = ({ household }: SidebarProps) => {
               className: 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] hover:text-[var(--color-text-primary)]',
             }}
             className={cn(
-              'flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm transition-colors',
+              'flex items-center justify-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm transition-colors',
+              isExpanded && 'justify-start',
               !hasHousehold && 'pointer-events-none opacity-40',
             )}
           >
@@ -55,6 +48,14 @@ export const Sidebar = ({ household }: SidebarProps) => {
           </Link>
         ))}
       </nav>
+
+      <button
+        onClick={toggle}
+        className="flex h-12 items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+        aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+      >
+        <i className={`ti ti-chevron-${isExpanded ? 'left' : 'right'} text-lg`} />
+      </button>
     </aside>
   )
 }
