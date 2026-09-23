@@ -68,6 +68,7 @@ CREATE TABLE public.meals (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   household_id uuid NOT NULL REFERENCES public.households (id) ON DELETE CASCADE,
   name text NOT NULL,
+  icon text NOT NULL DEFAULT 'ti-soup',
   created_by uuid NOT NULL REFERENCES auth.users (id),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()

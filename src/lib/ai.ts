@@ -1,6 +1,7 @@
 import type { IngredientCategory } from '@/types/meals'
 import type { Locale } from './i18n'
 import { getCategoryDetectionPrompt, formatPrompt } from './prompts'
+import { isFeatureEnabled } from './systemSettings'
 
 const VALID_CATEGORIES: IngredientCategory[] = [
   'vegetables',
@@ -58,6 +59,10 @@ export const detectCategory = async (
   ingredientName: string,
   locale: Locale = 'en',
 ): Promise<IngredientCategory | null> => {
+  if (!isFeatureEnabled('aiCategoryDetection')) {
+    return null
+  }
+
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
   if (!apiKey) {
     console.warn('No Gemini API key found')

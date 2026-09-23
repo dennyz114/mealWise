@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { detectCategory } from '@/lib/ai'
+import { isFeatureEnabled } from '@/lib/systemSettings'
 import { Button } from '@/components/ui/button'
 import type { IngredientCategory, IngredientUnit } from '@/types/meals'
 
 const UNITS: IngredientUnit[] = ['units', 'kg', 'l', 'pack', 'bunch', 'can']
+const AI_CATEGORY_DETECTION_ENABLED = isFeatureEnabled('aiCategoryDetection')
 
 type NewIngredientFormProps = {
   initialName?: string
@@ -31,7 +33,9 @@ export const NewIngredientForm = ({
     null,
   )
   const [isDetecting, setIsDetecting] = useState(false)
-  const [showCategoryPicker, setShowCategoryPicker] = useState(false)
+  const [showCategoryPicker, setShowCategoryPicker] = useState(
+    !AI_CATEGORY_DETECTION_ENABLED,
+  )
   const [userManuallyChanged, setUserManuallyChanged] = useState(false)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -39,6 +43,8 @@ export const NewIngredientForm = ({
 
   // AI category detection with 1 second debounce
   useEffect(() => {
+    if (!AI_CATEGORY_DETECTION_ENABLED) return
+
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
@@ -122,6 +128,11 @@ export const NewIngredientForm = ({
   const isFormValid =
     name.trim() && !isNaN(parseFloat(quantity)) && parseFloat(quantity) > 0
 
+  const showManualCategoryPicker =
+    !AI_CATEGORY_DETECTION_ENABLED ||
+    (!aiSuggestion && !showCategoryPicker) ||
+    showCategoryPicker
+
   return (
     <div className="space-y-4 rounded-[var(--radius-lg)] border-[0.5px] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-4">
       {/* Header */}
@@ -189,7 +200,7 @@ export const NewIngredientForm = ({
           {t('meals.wizardCategory')}
         </label>
 
-        {isDetecting && (
+        {AI_CATEGORY_DETECTION_ENABLED && isDetecting && (
           <div className="flex items-center gap-2 py-2">
             <div className="size-4 animate-spin rounded-full border-2 border-[var(--color-border-default)] border-t-[var(--color-accent)]" />
             <span className="text-[12px] text-[var(--color-text-secondary)]">
@@ -198,46 +209,22 @@ export const NewIngredientForm = ({
           </div>
         )}
 
-        {!isDetecting && aiSuggestion && !showCategoryPicker && (
-          <button
-            onClick={() => setShowCategoryPicker(true)}
-            className="flex items-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-accent-subtle)] px-3 py-2 text-[13px] text-[var(--color-accent)]"
-          >
-            <i className="ti ti-sparkles text-[14px]" />
-            {t('meals.aiSuggests', {
-              category: t(`categories.${aiSuggestion}`),
-            })}
-          </button>
-        )}
+        {AI_CATEGORY_DETECTION_ENABLED &&
+          !isDetecting &&
+          aiSuggestion &&
+          !showCategoryPicker && (
+            <button
+              onClick={() => setShowCategoryPicker(true)}
+              className="flex items-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-accent-subtle)] px-3 py-2 text-[13px] text-[var(--color-accent)]"
+            >
+              <i className="ti ti-sparkles text-[14px]" />
+              {t('meals.aiSuggests', {
+                category: t(`categories.${aiSuggestion}`),
+              })}
+            </button>
+          )}
 
-        {!aiSuggestion && !showCategoryPicker && (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {(
-              [
-                'vegetables',
-                'proteins',
-                'pantry',
-                'fruits',
-                'spices',
-                'cleaning',
-              ] as IngredientCategory[]
-            ).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => handleCategorySelect(cat)}
-                className={`rounded-full border-[1.5px] px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                  category === cat
-                    ? 'border-[var(--color-border-accent)] bg-[var(--color-accent-subtle)] text-[var(--color-accent)]'
-                    : 'border-[var(--color-border-default)] bg-[var(--color-bg-primary)] text-[var(--color-text-secondary)]'
-                }`}
-              >
-                {t(`categories.${cat}`)}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {showCategoryPicker && (
+        {showManualCategoryPicker && (
           <div className="flex flex-wrap gap-2 pt-1">
             {(
               [
