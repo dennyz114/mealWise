@@ -6,10 +6,18 @@ import type { AuthUser } from '@/types/auth'
 
 const FIVE_MINUTES = 1000 * 60 * 5
 
+const displayNameFromMetadata = (metadata: Record<string, string>): string => {
+  if (metadata.full_name) return metadata.full_name
+  if (metadata.name) return metadata.name
+
+  const parts = [metadata.first_name, metadata.last_name].filter(Boolean)
+  return parts.length > 0 ? parts.join(' ') : ''
+}
+
 const mapUser = (user: { id: string; email?: string; user_metadata: Record<string, string> }): AuthUser => ({
   id: user.id,
   email: user.email ?? '',
-  displayName: user.user_metadata.full_name ?? user.user_metadata.name ?? '',
+  displayName: displayNameFromMetadata(user.user_metadata),
   avatarUrl: user.user_metadata.avatar_url ?? '',
 })
 

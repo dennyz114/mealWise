@@ -6,6 +6,7 @@ import { supabase } from './supabase'
 vi.mock('./supabase', () => ({
   supabase: {
     from: vi.fn(),
+    rpc: vi.fn(),
   },
 }))
 
@@ -199,18 +200,10 @@ describe('joinHousehold', () => {
       created_at: '2024-01-01T00:00:00Z',
     }
 
-    const householdChain = createMockChain({
+    vi.mocked(supabase.rpc).mockResolvedValue({
       data: mockHousehold,
       error: null,
-    })
-
-    const memberChain = {
-      insert: vi.fn().mockResolvedValue({ error: null }),
-    }
-
-    vi.mocked(supabase.from)
-      .mockReturnValueOnce(householdChain as any)
-      .mockReturnValueOnce(memberChain as any)
+    } as never)
 
     const result = await joinHousehold('XYZ-789', 'new-user-1')
 
@@ -222,51 +215,25 @@ describe('joinHousehold', () => {
       createdAt: '2024-01-01T00:00:00Z',
     })
 
-    expect(supabase.from).toHaveBeenNthCalledWith(1, 'households')
-    expect(householdChain.eq).toHaveBeenCalledWith('join_code', 'XYZ-789')
-
-    expect(supabase.from).toHaveBeenNthCalledWith(2, 'household_members')
-    expect(memberChain.insert).toHaveBeenCalledWith({
-      household_id: 'existing-household',
-      user_id: 'new-user-1',
-      role: 'member',
+    expect(supabase.rpc).toHaveBeenCalledWith('join_household_by_code', {
+      p_join_code: 'XYZ-789',
     })
   })
 
   it('throws when code is not found', async () => {
-    const lookupError = new Error('No rows found')
-    const householdChain = createMockChain({
+    vi.mocked(supabase.rpc).mockResolvedValue({
       data: null,
-      error: lookupError,
-    })
-    vi.mocked(supabase.from).mockReturnValue(householdChain as any)
+      error: new Error('Invalid join code'),
+    } as never)
 
     await expect(joinHousehold('INVALID', 'user-1')).rejects.toThrow()
   })
 
   it('throws when user is already a member', async () => {
-    const mockHousehold = {
-      id: 'existing-household',
-      name: 'The Smiths',
-      join_code: 'XYZ-789',
-      created_by: 'owner-1',
-      created_at: '2024-01-01T00:00:00Z',
-    }
-
-    const householdChain = createMockChain({
-      data: mockHousehold,
-      error: null,
-    })
-
-    const memberChain = {
-      insert: vi.fn().mockResolvedValue({
-        error: new Error('duplicate key value violates unique constraint'),
-      }),
-    }
-
-    vi.mocked(supabase.from)
-      .mockReturnValueOnce(householdChain as any)
-      .mockReturnValueOnce(memberChain as any)
+    vi.mocked(supabase.rpc).mockResolvedValue({
+      data: null,
+      error: new Error('duplicate key value violates unique constraint'),
+    } as never)
 
     await expect(joinHousehold('XYZ-789', 'existing-user-1')).rejects.toThrow(
       'duplicate key value violates unique constraint',
