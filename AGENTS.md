@@ -6,7 +6,8 @@ A mobile-first weekly meal planner for households. Users manage a library of mea
 
 ## On Session Start
 
-Always activate the **ProductManager** agent before doing anything else.
+1. Always activate the **ProductManager** agent before doing anything else.
+2. For feature work, read **`docs/features/`** (start at `docs/features/README.md`) instead of asking the user to paste feature context. Also check `docs/DATABASE.md` when touching schema.
 
 ---
 
@@ -19,10 +20,10 @@ Always activate the **ProductManager** agent before doing anything else.
 | Routing | TanStack Router (file-based, type-safe) |
 | Server state | TanStack Query |
 | Backend / DB | Supabase (PostgreSQL) |
-| Auth | Supabase Auth — Google OAuth |
+| Auth | Supabase Auth — email/password |
 | Styling | Tailwind CSS v4 |
 | UI components | shadcn/ui |
-| AI features | Anthropic API (ingredient category auto-detection) |
+| AI features | Optional ingredient category detection (system setting) |
 | Deployment | Cloudflare Pages |
 
 ---
@@ -49,6 +50,7 @@ Always activate the **ProductManager** agent before doing anything else.
 
 ## Linked Docs
 
+- Feature guidance (session) → `docs/features/README.md`
+- Features overview → `docs/FEATURES.md`
 - Database schema → `docs/DATABASE.md`
-- Features → `docs/FEATURES.md`
 - Coding guidelines → `docs/CODING_GUIDELINES.md`

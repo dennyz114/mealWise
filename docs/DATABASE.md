@@ -166,6 +166,7 @@ meals
 
 - **Row Level Security (RLS)** should be enabled on all tables. Users must belong to a household to read or write its data.
 - **`join_code`** on `households` should have a unique constraint and be used only for invite flows — never exposed in public listings.
+- **Ingredients** — canonical catalog is `ingredient_library`; per-meal amounts are in `meal_ingredients`. Product rules: `docs/features/meal-management.md`.
 - **`is_manual`** on `shopping_list_items` distinguishes auto-generated items (from meal ingredients) from ones the user typed in manually. Keep this distinction when syncing or regenerating the list.
 - **`day_of_week`** uses `int2` with 1=Monday through 7=Sunday (ISO 8601). Always enforce this convention in application code.
 - **`week_start`** should always be a Monday. Validate this at the application layer before inserting.
