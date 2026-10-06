@@ -20,7 +20,7 @@ export default defineConfig({
     timeout: 120_000,
   },
   projects: [
-    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+    { name: 'setup', testMatch: /auth\.setup\.ts/, use: { trace: 'off' } },
     {
       name: 'happy-paths',
       testMatch: /happy-paths\.spec\.ts/,

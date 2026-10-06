@@ -12,7 +12,29 @@ export type CleanupClient = {
   deleteMembership: (householdId: string, userId: string) => Promise<void>
 }
 
+export function assertRowsDeleted(
+  rows: { id: string }[] | null,
+  label: string,
+): void {
+  if (!rows || rows.length === 0) {
+    throw new Error(`${label}: no row was deleted`)
+  }
+}
+
 export async function clearAccountHouseholds(
+  client: CleanupClient,
+  email: string,
+  password: string,
+): Promise<void> {
+  try {
+    await clearAccountHouseholdsUnredacted(client, email, password)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown error'
+    throw new Error(redactSecrets(message, [password, email]))
+  }
+}
+
+async function clearAccountHouseholdsUnredacted(
   client: CleanupClient,
   email: string,
   password: string,
@@ -75,16 +97,23 @@ export function createSupabaseCleanupClient(supabase: SupabaseClient): CleanupCl
       }))
     },
     async deleteHousehold(householdId) {
-      const { error } = await supabase.from('households').delete().eq('id', householdId)
+      const { data, error } = await supabase
+        .from('households')
+        .delete()
+        .eq('id', householdId)
+        .select('id')
       if (error) throw new Error(error.message)
+      assertRowsDeleted(data, `household ${householdId}`)
     },
     async deleteMembership(householdId, userId) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('household_members')
         .delete()
         .eq('household_id', householdId)
         .eq('user_id', userId)
+        .select('id')
       if (error) throw new Error(error.message)
+      assertRowsDeleted(data, `membership ${householdId}`)
     },
   }
 }

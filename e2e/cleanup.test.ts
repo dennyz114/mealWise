@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { clearAccountHouseholds, type CleanupClient } from './cleanup'
+import {
+  assertRowsDeleted,
+  clearAccountHouseholds,
+  createSupabaseCleanupClient,
+  type CleanupClient,
+} from './cleanup'
 
 const password = 'p@ss-should-not-leak'
 
@@ -12,6 +17,39 @@ function client(overrides: Partial<CleanupClient> = {}): CleanupClient {
     ...overrides,
   }
 }
+
+describe('assertRowsDeleted', () => {
+  it('throws when no row was deleted', () => {
+    expect(() => assertRowsDeleted([], 'household home-1')).toThrow(
+      'household home-1: no row was deleted',
+    )
+    expect(() => assertRowsDeleted(null, 'household home-1')).toThrow(
+      'household home-1: no row was deleted',
+    )
+  })
+
+  it('accepts a deleted row', () => {
+    expect(() => assertRowsDeleted([{ id: 'home-1' }], 'household home-1')).not.toThrow()
+  })
+})
+
+describe('createSupabaseCleanupClient deletes', () => {
+  it('throws when a household delete matches no row', async () => {
+    const supabase = {
+      from: () => ({
+        delete: () => ({
+          eq: () => ({
+            select: async () => ({ data: [], error: null }),
+          }),
+        }),
+      }),
+    }
+    const cleanup = createSupabaseCleanupClient(supabase as never)
+    await expect(cleanup.deleteHousehold('home-1')).rejects.toThrow(
+      'household home-1: no row was deleted',
+    )
+  })
+})
 
 describe('clearAccountHouseholds', () => {
   it('deletes an owned household and does not delete that membership', async () => {
@@ -44,6 +82,20 @@ describe('clearAccountHouseholds', () => {
     )
     try {
       await clearAccountHouseholds(fake, 'cook@example.com', password)
+    } catch (error) {
+      expect(String(error)).not.toContain(password)
+    }
+  })
+
+  it('redacts the password when sign-in throws', async () => {
+    const fake = client({
+      signIn: vi.fn(async () => {
+        throw new Error(`network down ${password}`)
+      }),
+    })
+    try {
+      await clearAccountHouseholds(fake, 'cook@example.com', password)
+      expect.fail('expected cleanup to throw')
     } catch (error) {
       expect(String(error)).not.toContain(password)
     }
